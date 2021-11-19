@@ -1,0 +1,251 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+library(tidyverse)
+library(patchwork)
+```
+
+```{r}
+df <- read.csv("LengthOfStay_Prod.csv")
+
+df$dialysisrenalendstage <- as.character(df$dialysisrenalendstage)
+df$asthma <- as.character(df$asthma)
+df$irondef <- as.character(df$irondef)
+df$pneum <- as.character(df$pneum)
+df$substancedependence <- as.character(df$substancedependence)
+df$psychologicaldisordermajor <- as.character(df$psychologicaldisordermajor)
+df$depress <- as.character(df$depress)
+df$psychother <- as.character(df$psychother)
+df$fibrosisandother <- as.character(df$fibrosisandother)
+df$malnutrition <- as.character(df$malnutrition)
+df$hemo <- as.character(df$hemo)
+
+characteristics <- df %>% select(gender, dialysisrenalendstage, asthma, irondef,
+                                 pneum, substancedependence, psychologicaldisordermajor,
+                                 depress, psychother, fibrosisandother, malnutrition,
+                                 hemo)
+```
+
+
+•	Correlation between characteristics/disorders and physiological analysis (Eubin)
+o	Continuous/categorical boxplot
+
+```{r}
+# Hematocrit vs. Characteristics
+
+plot_list_hemato <- list()
+
+for(i in 1:ncol(characteristics)) {
+    subdf <- data.frame(cbind(df$hematocrit, characteristics[,i]))
+    subdf$physio <- as.numeric(subdf$X1)
+    
+    g <- ggplot(data=subdf, aes(x=physio, y=X2)) +
+        geom_boxplot() +
+        labs(x="hematocrit", y=as.character(colnames(characteristics)[i]))
+    
+    plot_list_hemato[[i]] <- g
+}
+
+plot_list_hemato[[1]] + plot_list_hemato[[2]] + plot_list_hemato[[3]] +
+    plot_list_hemato[[4]] + plot_list_hemato[[5]] + plot_list_hemato[[6]] +
+    plot_list_hemato[[7]] + plot_list_hemato[[8]] + plot_list_hemato[[9]] +
+    plot_list_hemato[[10]] + plot_list_hemato[[11]] + plot_list_hemato[[12]] +
+    plot_layout()
+```
+
+```{r}
+# Neutrophils vs. Characteristics
+
+plot_list_neutro <- list()
+
+for(i in 1:ncol(characteristics)) {
+    subdf <- data.frame(cbind(df$neutrophils, characteristics[,i]))
+    subdf$physio <- as.numeric(subdf$X1)
+    
+    g <- ggplot(data=subdf, aes(x=physio, y=X2)) +
+        geom_boxplot() +
+        labs(x="neutrophils", y=as.character(colnames(characteristics)[i]))
+    
+    plot_list_neutro[[i]] <- g
+}
+
+plot_list_neutro[[1]] + plot_list_neutro[[2]] + plot_list_neutro[[3]] +
+    plot_list_neutro[[4]] + plot_list_neutro[[5]] + plot_list_neutro[[6]] +
+    plot_list_neutro[[7]] + plot_list_neutro[[8]] + plot_list_neutro[[9]] +
+    plot_list_neutro[[10]] + plot_list_neutro[[11]] + plot_list_neutro[[12]] +
+    plot_layout()
+```
+
+```{r}
+# Sodium vs. Characteristics
+
+plot_list_sod <- list()
+
+for(i in 1:ncol(characteristics)) {
+    subdf <- data.frame(cbind(df$sodium, characteristics[,i]))
+    subdf$physio <- as.numeric(subdf$X1)
+    
+    g <- ggplot(data=subdf, aes(x=physio, y=X2)) +
+        geom_boxplot() +
+        labs(x="sodium", y=as.character(colnames(characteristics)[i]))
+    
+    plot_list_sod[[i]] <- g
+}
+
+plot_list_sod[[1]] + plot_list_sod[[2]] + plot_list_sod[[3]] +
+    plot_list_sod[[4]] + plot_list_sod[[5]] + plot_list_sod[[6]] +
+    plot_list_sod[[7]] + plot_list_sod[[8]] + plot_list_sod[[9]] +
+    plot_list_sod[[10]] + plot_list_sod[[11]] + plot_list_sod[[12]] +
+    plot_layout()
+```
+
+```{r}
+# Glucose vs. Characteristics
+
+plot_list_glu <- list()
+
+for(i in 1:ncol(characteristics)) {
+    subdf <- data.frame(cbind(df$glucose, characteristics[,i]))
+    subdf$physio <- as.numeric(subdf$X1)
+    
+    g <- ggplot(data=subdf, aes(x=physio, y=X2)) +
+        geom_boxplot() +
+        labs(x="glucose", y=as.character(colnames(characteristics)[i]))
+    
+    plot_list_glu[[i]] <- g
+}
+
+plot_list_glu[[1]] + plot_list_glu[[2]] + plot_list_glu[[3]] +
+    plot_list_glu[[4]] + plot_list_glu[[5]] + plot_list_glu[[6]] +
+    plot_list_glu[[7]] + plot_list_glu[[8]] + plot_list_glu[[9]] +
+    plot_list_glu[[10]] + plot_list_glu[[11]] + plot_list_glu[[12]] +
+    plot_layout()
+```
+
+```{r}
+# BloodUreaNitro vs. Characteristics
+
+plot_list_bun <- list()
+
+for(i in 1:ncol(characteristics)) {
+    subdf <- data.frame(cbind(df$bloodureanitro, characteristics[,i]))
+    subdf$physio <- as.numeric(subdf$X1)
+    
+    g <- ggplot(data=subdf, aes(x=physio, y=X2)) +
+        geom_boxplot() +
+        labs(x="bloodureanitro", y=as.character(colnames(characteristics)[i]))
+    
+    plot_list_bun[[i]] <- g
+}
+
+plot_list_bun[[1]] + plot_list_bun[[2]] + plot_list_bun[[3]] +
+    plot_list_bun[[4]] + plot_list_bun[[5]] + plot_list_bun[[6]] +
+    plot_list_bun[[7]] + plot_list_bun[[8]] + plot_list_bun[[9]] +
+    plot_list_bun[[10]] + plot_list_bun[[11]] + plot_list_bun[[12]] +
+    plot_layout()
+```
+
+```{r}
+# Creatinine vs. Characteristics
+
+plot_list_cre <- list()
+
+for(i in 1:ncol(characteristics)) {
+    subdf <- data.frame(cbind(df$creatinine, characteristics[,i]))
+    subdf$physio <- as.numeric(subdf$X1)
+    
+    g <- ggplot(data=subdf, aes(x=physio, y=X2)) +
+        geom_boxplot() +
+        labs(x="creatinine", y=as.character(colnames(characteristics)[i]))
+    
+    plot_list_cre[[i]] <- g
+}
+
+plot_list_cre[[1]] + plot_list_cre[[2]] + plot_list_cre[[3]] +
+    plot_list_cre[[4]] + plot_list_cre[[5]] + plot_list_cre[[6]] +
+    plot_list_cre[[7]] + plot_list_cre[[8]] + plot_list_cre[[9]] +
+    plot_list_cre[[10]] + plot_list_cre[[11]] + plot_list_cre[[12]] +
+    plot_layout()
+```
+
+```{r}
+# BMI vs. Characteristics
+
+plot_list_bmi <- list()
+
+for(i in 1:ncol(characteristics)) {
+    subdf <- data.frame(cbind(df$bmi, characteristics[,i]))
+    subdf$physio <- as.numeric(subdf$X1)
+    
+    g <- ggplot(data=subdf, aes(x=physio, y=X2)) +
+        geom_boxplot() +
+        labs(x="BMI", y=as.character(colnames(characteristics)[i]))
+    
+    plot_list_bmi[[i]] <- g
+}
+
+plot_list_bmi[[1]] + plot_list_bmi[[2]] + plot_list_bmi[[3]] +
+    plot_list_bmi[[4]] + plot_list_bmi[[5]] + plot_list_bmi[[6]] +
+    plot_list_bmi[[7]] + plot_list_bmi[[8]] + plot_list_bmi[[9]] +
+    plot_list_bmi[[10]] + plot_list_bmi[[11]] + plot_list_bmi[[12]] +
+    plot_layout()
+```
+
+```{r}
+# Pulse vs. Characteristics
+
+plot_list_pul <- list()
+
+for(i in 1:ncol(characteristics)) {
+    subdf <- data.frame(cbind(df$pulse, characteristics[,i]))
+    subdf$physio <- as.numeric(subdf$X1)
+    
+    g <- ggplot(data=subdf, aes(x=physio, y=X2)) +
+        geom_boxplot() +
+        labs(x="pulse", y=as.character(colnames(characteristics)[i]))
+    
+    plot_list_pul[[i]] <- g
+}
+
+plot_list_pul[[1]] + plot_list_pul[[2]] + plot_list_pul[[3]] +
+    plot_list_pul[[4]] + plot_list_pul[[5]] + plot_list_pul[[6]] +
+    plot_list_pul[[7]] + plot_list_pul[[8]] + plot_list_pul[[9]] +
+    plot_list_pul[[10]] + plot_list_pul[[11]] + plot_list_pul[[12]] +
+    plot_layout()
+```
+
+```{r}
+# Respiration vs. Characteristics
+
+plot_list_res <- list()
+
+for(i in 1:ncol(characteristics)) {
+    subdf <- data.frame(cbind(df$respiration, characteristics[,i]))
+    subdf$physio <- as.numeric(subdf$X1)
+    
+    g <- ggplot(data=subdf, aes(x=physio, y=X2)) +
+        geom_boxplot() +
+        labs(x="respiration", y=as.character(colnames(characteristics)[i]))
+    
+    plot_list_res[[i]] <- g
+}
+
+plot_list_res[[1]] + plot_list_res[[2]] + plot_list_res[[3]] +
+    plot_list_res[[4]] + plot_list_res[[5]] + plot_list_res[[6]] +
+    plot_list_res[[7]] + plot_list_res[[8]] + plot_list_res[[9]] +
+    plot_list_res[[10]] + plot_list_res[[11]] + plot_list_res[[12]] +
+    plot_layout()
+```
+
+•	Checking for patterns within categorical physiological data (Eubin)
+o	Mosaic plot matrix
+
+```{r, fig.height=13}
+pairs(table(characteristics))
+```
+
+Seems like there are very few "1" patients for each medical category - maybe filter for these?
+
