@@ -1,0 +1,124 @@
+---
+title: "Physiological_Data"
+output: html_notebook
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+ggplot(df, aes(x=hematocrit, y=fct_reorder(los_char, los, .desc=TRUE))) +
+  geom_boxplot() +
+  labs(x="Hematocrit", y="Length of Stay (Number of Days)")
+```
+
+```{r}
+ggplot(df, aes(x=hematocrit)) +
+  geom_histogram() +
+  facet_wrap(~los_char)
+```
+
+
+```{r}
+ggplot(df, aes(x=neutrophils, y=fct_reorder(los_char, los, .desc=TRUE))) +
+  geom_boxplot() +
+  labs(x="Neutrophils", y="Length of Stay (Number of Days)")
+```
+
+```{r}
+ggplot(df, aes(x=sodium, y=fct_reorder(los_char, los, .desc=TRUE))) +
+  geom_boxplot() +
+  labs(x="Sodium", y="Length of Stay (Number of Days)")
+```
+
+```{r}
+ggplot(df, aes(x=glucose, y=fct_reorder(los_char, los, .desc=TRUE))) +
+  geom_boxplot() +
+  labs(x="Glucose", y="Length of Stay (Number of Days)")
+```
+
+```{r}
+ggplot(df, aes(x=bloodureanitro, y=fct_reorder(los_char, los, .desc=TRUE))) +
+  geom_boxplot() +
+  labs(x="BloodUreaNitro", y="Length of Stay (Number of Days)")
+```
+
+```{r}
+ggplot(df, aes(x=creatinine, y=fct_reorder(los_char, los, .desc=TRUE))) +
+  geom_boxplot() +
+  labs(x="SCreatinine", y="Length of Stay (Number of Days)")
+```
+
+```{r}
+ggplot(df, aes(x=bmi, y=fct_reorder(los_char, los, .desc=TRUE))) +
+  geom_boxplot() +
+  labs(x="BMI", y="Length of Stay (Number of Days)")
+```
+
+```{r}
+ggplot(df, aes(x=pulse, y=fct_reorder(los_char, los, .desc=TRUE))) +
+  geom_boxplot() +
+  labs(x="Pulse", y="Length of Stay (Number of Days)")
+```
+
+```{r}
+ggplot(df, aes(x=respiration, y=fct_reorder(los_char, los, .desc=TRUE))) +
+  geom_boxplot() +
+  labs(x="Respiration", y="Length of Stay (Number of Days)")
+```
+
+take means of physiological data by los
+```{r}
+physio_by_los <- df %>% group_by(los) %>%
+  summarise(hematocrit = mean(hematocrit),
+            neutrophils = mean(neutrophils),
+            sodium = mean(sodium),
+            glucose = mean(glucose),
+            bloodureanitro = mean(bloodureanitro),
+            creatinine = mean(creatinine),
+            bmi = mean(bmi)) %>%
+  ungroup() %>%
+  pivot_longer(!los, names_to = "physio", values_to = "measure")
+
+physio_by_los$los_char <- as.factor(physio_by_los$los)
+```
+
+```{r, fig.height=6}
+ggplot(physio_by_los, aes(x=fct_reorder(los_char, los, .desc=TRUE), y=measure)) +
+  geom_point() +
+  coord_flip() +
+  facet_wrap(~physio, ncol=1, scales="free") +
+  theme_bw()
+```
+
+
+
+parallel coordinates plot for seeing physiological data
+```{r}
+library(GGally)
+```
+
+```{r}
+pc1 <- df2 %>% filter(pattern=="1") %>%
+  ggparcoord(columns=16:24, scale="uniminmax", alphaLines=0.1)
+
+pc2 <- df2 %>% filter(pattern=="2") %>%
+  ggparcoord(columns=16:24, scale="uniminmax", alphaLines=0.1)
+
+pc3 <- df2 %>% filter(pattern=="3") %>%
+  ggparcoord(columns=16:24, scale="uniminmax", alphaLines=0.1)
+
+pc4 <- df2 %>% filter(pattern=="4") %>%
+  ggparcoord(columns=16:24, scale="uniminmax", alphaLines=0.1)
+
+pc5 <- df2 %>% filter(pattern=="5") %>%
+  ggparcoord(columns=16:24, scale="uniminmax", alphaLines=0.1)
+
+pc6 <- df2 %>% filter(pattern=="6") %>%
+  ggparcoord(columns=16:24, scale="uniminmax", alphaLines=0.1)
+
+pc1 + pc2 + pc3 +
+  pc4 + pc5 + pc6 +
+  plot_layout(ncol=1)
+```
