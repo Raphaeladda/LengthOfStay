@@ -1,0 +1,281 @@
+---
+title: "By_Characterics"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(patchwork)
+```
+
+```{r}
+df <- read.csv("LengthOfStay.csv")
+df <- subset(df, select = -c(eid, discharged, vdate))
+df <- df %>% mutate(LengthOfStay = ifelse(lengthofstay>8, "+9", lengthofstay))
+
+df$dialysisrenalendstage <- as.character(df$dialysisrenalendstage)
+df$asthma <- as.character(df$asthma)
+df$irondef <- as.character(df$irondef)
+df$pneum <- as.character(df$pneum)
+df$substancedependence <- as.character(df$substancedependence)
+df$psychologicaldisordermajor <- as.character(df$psychologicaldisordermajor)
+df$depress <- as.character(df$depress)
+df$psychother <- as.character(df$psychother)
+df$fibrosisandother <- as.character(df$fibrosisandother)
+df$malnutrition <- as.character(df$malnutrition)
+df$hemo <- as.character(df$hemo)
+
+df$los <- df$lengthofstay
+df$los_char <- as.character(df$los)
+```
+
+```{r}
+characteristics <- df %>% select(dialysisrenalendstage, asthma, irondef,
+                                 pneum, substancedependence, psychologicaldisordermajor,
+                                 depress, psychother, fibrosisandother, malnutrition,
+                                 hemo)
+```
+
+```{r}
+patterns <- characteristics %>%
+  group_by_all() %>%
+  count(name="count", sort=TRUE) %>%
+  ungroup %>%
+  rownames_to_column("id")
+
+top_patterns <- patterns[1:8,]
+
+top_patterns$percentage <- top_patterns$count / nrow(characteristics)
+
+tidy_patt <- top_patterns %>%
+  pivot_longer(!c(id, count, percentage),
+               names_to = "characteristic",
+               values_to = "yn")
+```
+
+```{r, fig.height=6}
+p1 <- ggplot(tidy_patt, aes(x=characteristic, y=fct_rev(id), fill=yn)) +
+  geom_tile(color="white") +
+  scale_fill_manual(values=c("gray81", "plum3")) +
+  xlab("Patient Characteristic") +
+  ylab("Pattern") +
+  theme_bw() +
+  theme(legend.position = "none") +
+  theme(panel.grid.major.x = element_blank(),
+        panel.grid.major.y = element_blank())
+
+p2 <- ggplot(top_patterns, aes(x=percentage, y=fct_rev(id))) +
+  geom_col(fill = 'cornflowerblue') +
+  xlab('Pattern Count')+
+  ylab('') +
+  xlim(0, 1) +
+  theme_bw() +
+  theme(legend.position = "none") +
+  theme(panel.grid.major.y = element_blank(),
+        panel.grid.minor.y = element_blank())
+
+p1 + p2 +
+  plot_layout(widths=(c(3,1)))
+```
+- pink squares represent the characteristics that the patient HAS
+- the majority of patients did not have any of the characteristics
+- of the next 5 most popular patterns (patients do have some characteristics), usually patients only had one of the given characteristics (2, 3, 4, 6), but one pattern (5) had 2 (depression & psychologicaldisordermajor)
+
+maybe reduce to just 2 patterns (with/without ANY conditions)
+mosaic plot: pattern on y-axis, los on x-axis
+
+plot with number of diseases a patient has
+
+look at rcount as well
+
+```{r}
+# need to filter df for the above 6 patterns
+
+# pattern 1: every characteristic == 0
+pat1 <- df %>% filter(dialysisrenalendstage==as.integer(top_patterns[1,2]),
+                      asthma==as.integer(top_patterns[1,3]),
+                      irondef==as.integer(top_patterns[1,4]),
+                      pneum==as.integer(top_patterns[1,5]),
+                      substancedependence==as.integer(top_patterns[1,6]),
+                      psychologicaldisordermajor==as.integer(top_patterns[1,7]),
+                      depress==as.integer(top_patterns[1,8]),
+                      psychother==as.integer(top_patterns[1,9]),
+                      fibrosisandother==as.integer(top_patterns[1,10]),
+                      malnutrition==as.integer(top_patterns[1,11]),
+                      hemo==as.integer(top_patterns[1,12])) %>%
+  add_column("pattern" = 1)
+
+# pattern 2
+pat2 <- df %>% filter(dialysisrenalendstage==as.integer(top_patterns[2,2]),
+                      asthma==as.integer(top_patterns[2,3]),
+                      irondef==as.integer(top_patterns[2,4]),
+                      pneum==as.integer(top_patterns[2,5]),
+                      substancedependence==as.integer(top_patterns[2,6]),
+                      psychologicaldisordermajor==as.integer(top_patterns[2,7]),
+                      depress==as.integer(top_patterns[2,8]),
+                      psychother==as.integer(top_patterns[2,9]),
+                      fibrosisandother==as.integer(top_patterns[2,10]),
+                      malnutrition==as.integer(top_patterns[2,11]),
+                      hemo==as.integer(top_patterns[2,12])) %>%
+  add_column("pattern" = 2)
+
+# pattern 3
+pat3 <- df %>% filter(dialysisrenalendstage==as.integer(top_patterns[3,2]),
+                      asthma==as.integer(top_patterns[3,3]),
+                      irondef==as.integer(top_patterns[3,4]),
+                      pneum==as.integer(top_patterns[3,5]),
+                      substancedependence==as.integer(top_patterns[3,6]),
+                      psychologicaldisordermajor==as.integer(top_patterns[3,7]),
+                      depress==as.integer(top_patterns[3,8]),
+                      psychother==as.integer(top_patterns[3,9]),
+                      fibrosisandother==as.integer(top_patterns[3,10]),
+                      malnutrition==as.integer(top_patterns[3,11]),
+                      hemo==as.integer(top_patterns[3,12])) %>%
+  add_column("pattern" = 3)
+
+# pattern 4
+pat4 <- df %>% filter(dialysisrenalendstage==as.integer(top_patterns[4,2]),
+                      asthma==as.integer(top_patterns[4,3]),
+                      irondef==as.integer(top_patterns[4,4]),
+                      pneum==as.integer(top_patterns[4,5]),
+                      substancedependence==as.integer(top_patterns[4,6]),
+                      psychologicaldisordermajor==as.integer(top_patterns[4,7]),
+                      depress==as.integer(top_patterns[4,8]),
+                      psychother==as.integer(top_patterns[4,9]),
+                      fibrosisandother==as.integer(top_patterns[4,10]),
+                      malnutrition==as.integer(top_patterns[4,11]),
+                      hemo==as.integer(top_patterns[4,12])) %>%
+  add_column("pattern" = 4)
+
+# pattern 5
+pat5 <- df %>% filter(dialysisrenalendstage==as.integer(top_patterns[5,2]),
+                      asthma==as.integer(top_patterns[5,3]),
+                      irondef==as.integer(top_patterns[5,4]),
+                      pneum==as.integer(top_patterns[5,5]),
+                      substancedependence==as.integer(top_patterns[5,6]),
+                      psychologicaldisordermajor==as.integer(top_patterns[5,7]),
+                      depress==as.integer(top_patterns[5,8]),
+                      psychother==as.integer(top_patterns[5,9]),
+                      fibrosisandother==as.integer(top_patterns[5,10]),
+                      malnutrition==as.integer(top_patterns[5,11]),
+                      hemo==as.integer(top_patterns[5,12])) %>%
+  add_column("pattern" = 5)
+
+# pattern 6
+pat6 <- df %>% filter(dialysisrenalendstage==as.integer(top_patterns[6,2]),
+                      asthma==as.integer(top_patterns[6,3]),
+                      irondef==as.integer(top_patterns[6,4]),
+                      pneum==as.integer(top_patterns[6,5]),
+                      substancedependence==as.integer(top_patterns[6,6]),
+                      psychologicaldisordermajor==as.integer(top_patterns[6,7]),
+                      depress==as.integer(top_patterns[6,8]),
+                      psychother==as.integer(top_patterns[6,9]),
+                      fibrosisandother==as.integer(top_patterns[6,10]),
+                      malnutrition==as.integer(top_patterns[6,11]),
+                      hemo==as.integer(top_patterns[6,12])) %>%
+  add_column("pattern" = 6)
+
+df2 <- rbind(pat1, pat2, pat3, pat4, pat5, pat6)
+
+df2$pattern <- as.character(df2$pattern)
+```
+
+- first look at distribution of lengths of stays, then go from there
+
+```{r}
+ggplot(df, aes(x=los)) +
+  geom_bar() +
+  xlab("Length of Stay (Number of Days)") +
+  ylab("Number of Patients") +
+  theme_bw()
+```
+- unimodal, decreasing
+
+now look at the distribution of the lengths of stays for patients with the most common patterns of characteristics
+```{r}
+ggplot(df2, aes(x=los)) +
+  geom_bar() +
+  xlab("Length of Stay (Number of Days)") +
+  ylab("Number of Patients") +
+  theme_bw()
+```
+- again unimodal, decreasing
+- shorter range (1-10 instead of 1-13) - means extreme outliers are not included in the main 6 patterns
+
+compare lengths of stays across different characteristic patterns
+```{r}
+ggplot(df2, aes(x=los, y=fct_rev(pattern))) +
+  geom_boxplot() +
+  geom_boxplot(outlier.color = "red", outlier.shape = 1, outlier.size = 3) +
+  labs(x="Length of Stay (Number of Days)", y="Characteristics Pattern")
+```
+- from the above plot, it is clear to see that the length of stay does generally increase if the patient does have some underlying medical conditions
+- but it is a uniform increase from a median of ~2 days to ~5 days for characteristics patterns 2-6
+
+compare distribution of LOS across different characteristics patterns
+```{r}
+ggplot(df2, aes(x = los)) +
+  geom_bar() +
+  facet_wrap(~pattern)
+```
+- there are no patients with characteristics patterns 2-6 who stayed for shorter than 3 days
+
+```{r}
+df2 %>% filter(pattern != "1") %>%
+  ggplot(aes(x = los)) +
+  geom_bar() +
+  facet_wrap(~pattern)
+
+# convert y-axis to percentages
+```
+
+from here, we should look at the specific characteristics which are present in the most common patterns and look for connections between them & physiological data
+
+```{r}
+physio_means <- df2 %>% 
+  select(hematocrit, neutrophils, sodium, glucose, 
+         bloodureanitro, creatinine, bmi, pattern) %>%
+  group_by(pattern) %>%
+  summarise(hematocrit = mean(hematocrit),
+            neutrophils = mean(neutrophils),
+            sodium = mean(sodium),
+            glucose = mean(glucose),
+            bloodureanitro = mean(bloodureanitro),
+            creatinine = mean(creatinine),
+            bmi = mean(bmi)) %>%
+  ungroup()
+
+physio_means
+```
+
+```{r}
+tidy_physio <- physio_means %>%
+  pivot_longer(!pattern, names_to = "physio", values_to = "measure")
+```
+
+```{r, fig.height=6}
+# won't show anything
+
+ggplot(tidy_physio, aes(x=fct_rev(pattern), y=measure)) +
+  geom_point() +
+  coord_flip() +
+  facet_wrap(~physio, ncol=1, scales="free") +
+  theme_bw()
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
