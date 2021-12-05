@@ -1,0 +1,280 @@
+---
+title: "Categorical Plots"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(patchwork)
+
+df <- read.csv("LengthOfStay.csv")
+df <- subset(df, select = -c(eid, discharged, vdate))
+df <- df %>% mutate(LengthOfStay = ifelse(lengthofstay>8, "9+", lengthofstay))
+```
+
+```{r}
+# create a character column for lengthofstay
+df$los_char <- as.character(df$lengthofstay)
+
+# create a dataframe of the categorical data
+characteristics <- df %>% select(dialysisrenalendstage, asthma, irondef,
+                                 pneum, substancedependence, psychologicaldisordermajor,
+                                 depress, psychother, fibrosisandother, malnutrition,
+                                 hemo)
+
+characteristics$dialysisrenalendstage <- as.character(characteristics$dialysisrenalendstage)
+characteristics$asthma <- as.character(characteristics$asthma)
+characteristics$irondef <- as.character(characteristics$irondef)
+characteristics$pneum <- as.character(characteristics$pneum)
+characteristics$substancedependence <- as.character(characteristics$substancedependence)
+characteristics$psychologicaldisordermajor <- as.character(characteristics$psychologicaldisordermajor)
+characteristics$depress <- as.character(characteristics$depress)
+characteristics$psychother <- as.character(characteristics$psychother)
+characteristics$fibrosisandother <- as.character(characteristics$fibrosisandother)
+characteristics$malnutrition <- as.character(characteristics$malnutrition)
+characteristics$hemo <- as.character(characteristics$hemo)
+```
+
+```{r}
+# reducing to 2 patterns only: with/without ANY conditions
+
+# make a function that can reduce to 2 patterns
+with_without <- function(df) {
+  a <- df %>% rowwise() %>%
+    mutate(char = ifelse(sum(c_across(dialysisrenalendstage:hemo)) == 0, "Without", "With"))
+  return(a)
+}
+
+# use this function to create a new df with patterns: without/with any conditions
+two_patt <- with_without(df) %>%
+  transform(char_fct=factor(char, levels=c("Without", "With")))
+
+# plot a boxplot of the lengths of stays of patients without/with any conditions
+bxp <- ggplot(two_patt, aes(x=lengthofstay, y=char)) +
+  geom_boxplot() +
+  geom_boxplot(outlier.shape = 1, outlier.size = 1) +
+  labs(x="Length of Stay (Number of Days)", y="Conditions",
+       title="Hospital Stay Lengths for Patients Without/With Pre-Existing Conditions") +
+  theme_bw(16)
+
+# plot a faceted histogram showing the distribution of the lengths of stays for patients with/without any conditions
+his <- ggplot(two_patt, aes(x=LengthOfStay)) +
+  geom_bar() +
+  facet_wrap(~char_fct) +
+  labs(x="Length of Stay (Number of Days)", y="Number of Patients",
+       title="Distributions of Hospital Stay Lengths for Patients Without/With Pre-Existing Conditions") +
+  theme_bw(16)
+
+# create a figure showing both plots
+bxp + his + plot_layout(ncol=1, heights=c(7, 10)) +
+  plot_annotation(tag_levels='A')
+```
+The boxplot in plot A clearly shows that the length of stay for a patient is generally higher if the patient has some pre-existing conditions in comparison to if they do not have any. In fact, the median stay length for patients without any conditions (2 days) is much shorter than the the median stay length for patients with conditions (5 days). Notably, as seen in the bar chart of plot B, there are no patients who had pre-existing conditions that also stayed at the hospital for less than 3 days. 
+
+The distributions of hospital stay lengths for patients both without and with pre-existing conditions are uni-modal and right-skewed; they both peak at the shortest length of stay. However, the interquartile range for patients without conditions is much larger (about twice the size) than that for patients with conditions, indicating that although most patients without conditions had a short hospital stay, there also were a noteworthy number of these patients who had longer stays than their condition history would suggest. However, of patients who had the longest hospital stays (8, 9+ days), more had pre-existing conditions, as seen in plot B.
+
+
+```{r}
+# analysis according to the number of conditions a patient has
+
+# create a new column num_cond counting the number of conditions a patient has
+df$num_char <- rowSums(df[, c(3:13)])
+df <- df %>% mutate(num_cond = ifelse(num_char>5, "6+", num_char))
+
+# create a histogram of the number of medical conditions
+cond_his <- ggplot(df, aes(x=num_cond)) +
+  geom_bar() +
+  labs(x="Number of Pre-Existing Conditions", y=str_wrap("Number of Patients", 25),
+       title="Distribution of Patients by Number of Pre-Existing Conditions") +
+  theme_bw(16)
+
+# create a cleveland dotplot to see how the number of conditions affects the length of stay
+count <- df %>%
+  group_by(LengthOfStay, num_cond) %>%
+  summarise(Freq = n()) %>%
+  ungroup()
+
+cond_dot <- ggplot(count, aes(x=fct_rev(LengthOfStay), y=Freq, color=num_cond)) +
+  geom_point(size=3) +
+  coord_flip() +
+  labs(x="Length of Stay (In Days)", 
+       y="Number of Patients", 
+       color=str_wrap("Number of Conditions", 15),
+       title="Hospital Stay Lengths by Number of Pre-Existing Conditions") +
+  scale_color_viridis_d(direction=-1) +
+  theme_bw(16)
+
+# combine the two plots together
+cond_his + cond_dot + plot_layout(heights=c(1, 3)) +
+  plot_annotation(tag_levels='A')
+```
+As seen in the bar graph of plot A, most of the patients admitted did not have any pre-existing medical conditions. A substantial amount of admitted patients had 1 or 2 conditions, but few had more than 3.
+
+The cleveland dot plot in plot B shows that, as the length of stay in hospital increases, the number of conditions that the patient has generally increases. Patients who stayed only 1-2 days in the hospital all have 0 conditions. However, as the length of stay increases, it is clear to see that the number of patients who have no conditions decreases. This is also the case for patients who have 1 or 2 conditions, and for patients who have 3 conditions - though to a lesser extent. However, patients with no/few conditions are the most abundant, and even as the length of stay increases, there are more patients with few conditions than many. Patients who have 4 or more conditions stayed for a minimum of 4 days, though there are very few of them and the number of such patients for each length of stay is generally constant. Overall, this shows that the more pre-existing conditions a patient has, the more likely it is for them to stay longer in the hospital.
+
+
+```{r}
+# analysis according to the number of previous admissions (rcount)
+
+# create a histogram of the number of previous admissions
+rcount_his <- ggplot(df, aes(x=rcount)) +
+  geom_bar() +
+  labs(x="Number of Previous Admissions", y=str_wrap("Number of Patients", 25),
+       title="Distribution of Patients by Number of Previous Admissions") +
+  theme_bw(16)
+
+# create a cleveland dotplot to see how the number of previous admissions affects length of stay
+count2 <- df %>%
+  group_by(LengthOfStay, rcount) %>%
+  summarise(Freq = n()) %>%
+  ungroup()
+
+rcount_dot <- ggplot(count2, aes(x=fct_rev(LengthOfStay), y=Freq, color=rcount)) +
+  geom_point(size=3) +
+  coord_flip() +
+  labs(x="Length of Stay (In Days)", 
+       y="Number of Patients", 
+       color=str_wrap("Number of Previous Admissions", 15),
+       title="Hospital Stay Lengths by Number of Previous Admissions") +
+  scale_color_viridis_d(direction=-1) +
+  theme_bw(16)
+
+# combine the two plots
+rcount_his + rcount_dot + plot_layout(heights=c(1, 3)) +
+  plot_annotation(tag_levels = 'A')
+```
+The bar graph in plot A shows that the majority of admitted patients had not been previously admitted to the hospital. The rest of the patients had previously been admitted to the hospital 1, 2, 3, 4 times at similar frequencies. 
+
+The cleveland dot plot in plot B shows that, as the number of previous admissions increases, the length of stay in the hospital also generally increases. The number of patients who either had 0 or 1 previous admissions to the hospital generally decreases as the length of stay increases. In fact the patients who had the shortest stays (1-3 days) had at most only 1 previous admission. Up until stays of 4 days, it can be seen that patients who had the fewest (i.e. 0) previous admissions were generally the most abundant. However, interestingly, this trend reverses for stays of 6 days or longer. For stays of 6 ore more days, it seems that patients who have a high number of previous admissions are the more abundant, whereas patients with few previous admissions are rarer. In fact, of the patients that had the longest stays (9+ days), all had been admitted to the hospital at least twice, with patients who had 5 or more previous admissions being the most common.
+
+
+```{r}
+# mosaic plot to dependency between number of conditions, number of admissions, and los
+
+# decrease the number of bins for each category
+df <- df %>% 
+  mutate(two_cat = ifelse(lengthofstay<5, "Short", "Long")) %>%
+  transform(Length_of_Stay=factor(two_cat, levels=c("Short", "Long"))) %>%
+  mutate(Number_of_Conditions = ifelse(num_cond>1, "2+", num_cond)) %>%
+  mutate(Number_of_Previous_Admissions = ifelse(rcount>2, "3+", rcount))
+
+# create mosaic plot
+vcd::mosaic(Length_of_Stay ~ Number_of_Conditions + Number_of_Previous_Admissions, df,
+       direction = c("v", "v", "h"))
+```
+The above mosaic plot shows that there is a positive relationship between the number of conditions, the number of previous admissions, and the length of stay. 
+
+(Note: For clarity in the mosaic plot, the number of categories for each variable has been decreased. "Short" stays in the hospital refer to those that are 4 days (the median length of stay) or less, and "long" stays in the hospital refer to those that are 5 days or more.)
+
+For patients who had 0 previous admissions, the proportion of patients who had "long" stays increased as the number of conditions increased. This trend is also seen for patients with 1 or 2 previous admissions to the hospital. Patients who had 3 or more previous admissions, however, all had "long" hospital stays regardless of the number of conditions, suggesting that for these patients, the number of conditions is irrelevant or at least not as important. 
+
+
+```{r}
+# create a pattern plot to visualize the most common patterns of medical conditions in the dataset
+
+# transform the data into the correct format and select the top 8 most common patterns
+patterns <- characteristics %>%
+  group_by_all() %>%
+  count(name="count", sort=TRUE) %>%
+  ungroup %>%
+  rownames_to_column("id")
+
+top_patterns <- patterns[1:8,]
+
+top_patterns$percentage <- top_patterns$count / nrow(characteristics)
+
+tidy_patt <- top_patterns %>%
+  pivot_longer(!c(id, count, percentage),
+               names_to = "characteristic",
+               values_to = "yn")
+
+# plot visualization of the top 8 patterns
+p1 <- ggplot(tidy_patt, aes(x=characteristic, y=id, fill=yn)) +
+  geom_tile(color="white") +
+  scale_fill_manual(values=c("gray81", "plum3")) +
+  xlab("Pre-Existing Condition") +
+  ylab("") +
+  theme_bw(16) +
+  theme(legend.position = "none") +
+  theme(panel.grid.major.x = element_blank(),
+        panel.grid.major.y = element_blank()) +
+  coord_flip()
+
+# plot the frequencies of the top 8 pattern by percentage
+p2 <- ggplot(top_patterns, aes(x=percentage, y=id)) +
+  geom_col() +
+  xlab(str_wrap('Percentage of Pattern', 15))+
+  ylab('Pattern of Conditions') +
+  xlim(0, 1) +
+  theme_bw(16) +
+  theme(legend.position = "none") +
+  theme(panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank()) +
+  coord_flip()
+
+p1 + p2 + plot_layout(heights=c(4,1)) +
+  plot_annotation(title = "Most Common Patterns of Conditions Seen in Patients",
+                  theme = theme(plot.title = element_text(size = 18)))
+```
+The above plot is a plot visualizing the top 8 most common patterns of conditions admitted patients have. In the top-most tile plot, each column represents a pattern of condition that a certain number of admitted patients presented, and each row represents a single medical condition. A grey tile means that this pattern does not include this condition, whereas a pink tile means that the pattern does. For example, pattern 1 (column 1) is the pattern where the patient did not have any of the conditions. Pattern 2 (column 2) is the pattern where the patient only had psychological disorder major, but not any of the other conditions. The columns are ordered from 1 to 8 by frequency in the data set, which can be seen in the bar graph below, showing the percentage frequency of each pattern.
+
+The majority of admitted patients did not have any of the conditions (pattern 1), and the next seven most common patterns were comparatively much rarer. Most of the top patterns had only one of the given conditions, although patterns 4 and 8 had two conditions each. In these patterns, the most common condition was psychological disorder major (seen in 3 patterns) and iron deficiency (seen in 2 patterns). Some conditions were not seen at all in the top patterns, such as pneumonia or malnutrition.
+
+
+```{r}
+# implement a function to find the rows which match each pattern
+find_rows <- function(df, k) {
+  pat <- df %>% filter(dialysisrenalendstage==as.integer(top_patterns[k,2]),
+                      asthma==as.integer(top_patterns[k,3]),
+                      irondef==as.integer(top_patterns[k,4]),
+                      pneum==as.integer(top_patterns[k,5]),
+                      substancedependence==as.integer(top_patterns[k,6]),
+                      psychologicaldisordermajor==as.integer(top_patterns[k,7]),
+                      depress==as.integer(top_patterns[k,8]),
+                      psychother==as.integer(top_patterns[k,9]),
+                      fibrosisandother==as.integer(top_patterns[k,10]),
+                      malnutrition==as.integer(top_patterns[k,11]),
+                      hemo==as.integer(top_patterns[k,12])) %>%
+    add_column("pattern"=k)
+  return(pat)
+}
+
+# find such rows and create a new data frame
+pat1 <- find_rows(df, 1)
+pat2 <- find_rows(df, 2)
+pat3 <- find_rows(df, 3)
+pat4 <- find_rows(df, 4)
+pat5 <- find_rows(df, 5)
+pat6 <- find_rows(df, 6)
+pat7 <- find_rows(df, 7)
+pat8 <- find_rows(df, 8)
+
+df2 <- rbind(pat1, pat2, pat3, pat4, pat5, pat6, pat7, pat8)
+df2$pattern <- as.character(df2$pattern)
+
+# compare the lengths of stays across different condition patterns
+ggplot(df2, aes(x=lengthofstay, y=fct_rev(pattern))) +
+  geom_boxplot() +
+  geom_boxplot(outlier.shape = 1, outlier.size = 1) +
+  labs(x="Length of Stay (Number of Days)", y="Pattern of Conditions",
+       title = "Length of Stay by Condition Pattern") +
+  theme_bw()
+```
+The above boxplot shows that the patients who exhibited the most common pattern (no conditions) generally had a shorter stay in the hospital than patients exhibiting any other pattern. In fact, the median length of stay for patients with condition pattern 1 (2 days) was shorter than the minimum length of stay for patients of any other condition pattern. 
+
+Interestingly, the 5 of the next 7 most common condition patterns had the same median length of stay (5 days), while the other 2 patterns also had the same median length (4 days). The minimums and 75th quartiles of all the next top 7 patterns were also all the same.
+
+
+
+
+
+
+
+
+
+
+
