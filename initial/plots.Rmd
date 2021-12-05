@@ -1,0 +1,297 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(patchwork)
+```
+
+```{r}
+df <- read.csv("LengthOfStay.csv")
+df <- subset(df, select = -c(eid, discharged, vdate))
+df <- df %>% mutate(LengthOfStay = ifelse(lengthofstay>8, "9+", lengthofstay))
+
+df$los_char <- as.character(df$lengthofstay)
+```
+
+```{r}
+characteristics <- df %>% select(dialysisrenalendstage, asthma, irondef,
+                                 pneum, substancedependence, psychologicaldisordermajor,
+                                 depress, psychother, fibrosisandother, malnutrition,
+                                 hemo)
+
+characteristics$dialysisrenalendstage <- as.character(characteristics$dialysisrenalendstage)
+characteristics$asthma <- as.character(characteristics$asthma)
+characteristics$irondef <- as.character(characteristics$irondef)
+characteristics$pneum <- as.character(characteristics$pneum)
+characteristics$substancedependence <- as.character(characteristics$substancedependence)
+characteristics$psychologicaldisordermajor <- as.character(characteristics$psychologicaldisordermajor)
+characteristics$depress <- as.character(characteristics$depress)
+characteristics$psychother <- as.character(characteristics$psychother)
+characteristics$fibrosisandother <- as.character(characteristics$fibrosisandother)
+characteristics$malnutrition <- as.character(characteristics$malnutrition)
+characteristics$hemo <- as.character(characteristics$hemo)
+```
+
+```{r}
+patterns <- characteristics %>%
+  group_by_all() %>%
+  count(name="count", sort=TRUE) %>%
+  ungroup %>%
+  rownames_to_column("id")
+
+top_patterns <- patterns[1:8,]
+
+top_patterns$percentage <- top_patterns$count / nrow(characteristics)
+
+tidy_patt <- top_patterns %>%
+  pivot_longer(!c(id, count, percentage),
+               names_to = "characteristic",
+               values_to = "yn")
+```
+
+```{r, fig.height=6}
+p1 <- ggplot(tidy_patt, aes(x=characteristic, y=fct_rev(id), fill=yn)) +
+  geom_tile(color="white") +
+  scale_fill_manual(values=c("gray81", "plum3")) +
+  xlab("Patient Characteristic") +
+  ylab("Pattern") +
+  theme_bw() +
+  theme(legend.position = "none") +
+  theme(panel.grid.major.x = element_blank(),
+        panel.grid.major.y = element_blank())
+
+p2 <- ggplot(top_patterns, aes(x=percentage, y=fct_rev(id))) +
+  geom_col(fill = 'cornflowerblue') +
+  xlab('Pattern Count')+
+  ylab('') +
+  xlim(0, 1) +
+  theme_bw() +
+  theme(legend.position = "none") +
+  theme(panel.grid.major.y = element_blank(),
+        panel.grid.minor.y = element_blank())
+
+p1 + p2 +
+  plot_layout(widths=(c(3,1)))
+```
+- pink squares represent the characteristics that the patient HAS
+- the majority of patients did not have any of the characteristics
+- of the next 7 most popular patterns (patients do have some characteristics), usually patients only had one of the given characteristics (2, 3, 5, 6, 7), but two patterns (4, 8) had 2
+
+```{r}
+find_rows <- function(df, k) {
+  pat <- df %>% filter(dialysisrenalendstage==as.integer(top_patterns[k,2]),
+                      asthma==as.integer(top_patterns[k,3]),
+                      irondef==as.integer(top_patterns[k,4]),
+                      pneum==as.integer(top_patterns[k,5]),
+                      substancedependence==as.integer(top_patterns[k,6]),
+                      psychologicaldisordermajor==as.integer(top_patterns[k,7]),
+                      depress==as.integer(top_patterns[k,8]),
+                      psychother==as.integer(top_patterns[k,9]),
+                      fibrosisandother==as.integer(top_patterns[k,10]),
+                      malnutrition==as.integer(top_patterns[k,11]),
+                      hemo==as.integer(top_patterns[k,12])) %>%
+    add_column("pattern"=k)
+  return(pat)
+}
+```
+
+```{r}
+pat1 <- find_rows(df, 1)
+pat2 <- find_rows(df, 2)
+pat3 <- find_rows(df, 3)
+pat4 <- find_rows(df, 4)
+pat5 <- find_rows(df, 5)
+pat6 <- find_rows(df, 6)
+pat7 <- find_rows(df, 7)
+pat8 <- find_rows(df, 8)
+
+df2 <- rbind(pat1, pat2, pat3, pat4, pat5, pat6, pat7, pat8)
+df2$pattern <- as.character(df2$pattern)
+```
+
+look at the distribution of the lengths of stays for patients with the most common patterns of characteristics
+```{r}
+ggplot(df2, aes(x=LengthOfStay)) +
+  geom_bar() +
+  xlab("Length of Stay (Number of Days)") +
+  ylab("Number of Patients") +
+  theme_bw()
+```
+unimodal, decreasing
+
+compare lengths of stays across different characteristic patterns
+```{r}
+ggplot(df2, aes(x=lengthofstay, y=fct_rev(pattern))) +
+  geom_boxplot() +
+  geom_boxplot(outlier.color = "red", outlier.shape = 1, outlier.size = 3) +
+  labs(x="Length of Stay (Number of Days)", y="Characteristics Pattern") +
+  theme_bw()
+```
+from the above plot, it is clear to see that the length of stay does generally increase if the patient does have some underlying medical conditions
+
+- mosaic plot: pattern on x-axis, los on y-axis
+
+```{r}
+tidy_char <- df2 %>%
+  group_by(LengthOfStay, pattern) %>%
+  summarise(Freq=n()) %>%
+  ungroup()
+```
+
+```{r, fig.height=5}
+mosaic(LengthOfStay ~ pattern, df2,
+       direction=c("v", "h"))
+```
+
+
+OTHER ANALYSIS
+- maybe reduce to just 2 patterns (with/without ANY conditions)
+```{r}
+# make a function that can reduce to 2 patterns
+with_without <- function(df) {
+  a <- df %>% rowwise() %>%
+    mutate(char = ifelse(sum(c_across(dialysisrenalendstage:hemo)) == 0, "Without", "With"))
+  return(a)
+}
+
+# use this function to create a new df with patterns 1, 2
+two_patt <- with_without(df) %>%
+  transform(char_fct=factor(char, levels=c("Without", "With")))
+```
+
+```{r}
+ggplot(two_patt, aes(x=lengthofstay, y=char)) +
+  geom_boxplot() +
+  geom_boxplot(outlier.color = "red", outlier.shape = 1, outlier.size = 3) +
+  labs(x="Length of Stay (Number of Days)", y="Conditions") +
+  theme_bw()
+```
+
+```{r}
+ggplot(two_patt, aes(x=LengthOfStay)) +
+  geom_bar() +
+  facet_wrap(~char_fct) +
+  xlab("Length of Stay (Number of Days)") +
+  ylab("Number of Patients") +
+  theme_bw()
+
+# add approximation of density curve ?
+```
+
+- plot with number of diseases a patient has
+
+```{r}
+df$num_char <- rowSums(df[, c(3:13)])
+df <- df %>% mutate(num_cond = ifelse(num_char>5, "6+", num_char))
+
+ggplot(df, aes(x=num_cond)) +
+  geom_bar() +
+  xlab("Number of Medical Conditions") +
+  ylab("Number of Patients") +
+  theme_bw()
+```
+- unimodal, decreases very quickly
+- majority of the patients do not have any medical conditions
+
+```{r}
+library(vcd)
+```
+
+```{r}
+mosaic(num_cond ~ LengthOfStay, df,
+       direction = c("v, h"))
+```
+
+```{r}
+count <- df %>%
+  group_by(LengthOfStay, num_cond) %>%
+  summarise(Freq = n()) %>%
+  ungroup()
+
+ggplot(count, aes(x=fct_rev(LengthOfStay), y=Freq, color=num_cond)) +
+  geom_point() +
+  coord_flip() +
+  labs(x="Length of Stay (In Days)", 
+       y="Number of Patients", 
+       color="Number of Conditions") +
+  scale_color_viridis_d(direction=-1) +
+  theme_bw()
+```
+
+```{r}
+ggplot(df, aes(x=LengthOfStay, fill=num_cond)) +
+  geom_bar(position="dodge") +
+  labs(x="Length of Stay (In Days)",
+       y="Number of Patients",
+       fill="Number of Conditions") +
+  scale_fill_brewer(palette="YlOrRd") +
+  theme_bw()
+```
+
+- looking at rcount (# of admissions to the hospital)
+
+```{r}
+count2 <- df %>%
+  group_by(LengthOfStay, rcount) %>%
+  summarise(Freq = n()) %>%
+  ungroup()
+
+ggplot(count2, aes(x=fct_rev(LengthOfStay), y=Freq, color=rcount)) +
+  geom_point() +
+  coord_flip() +
+  labs(x="Length of Stay (In Days)", 
+       y="Number of Patients", 
+       color="Number of Previous Admissions") +
+  scale_color_viridis_d(direction=-1) +
+  theme_bw()
+```
+
+```{r}
+ggplot(df, aes(x=LengthOfStay, fill=rcount)) +
+  geom_bar(position="dodge") +
+  labs(x="Length of Stay (In Days",
+       y="Number of Patients",
+       fill="Number of Previous Admissions") +
+  theme_bw()
+```
+
+- looking at number of conditions, rcount, and los altogether
+
+```{r, fig.height=3}
+count3 <- df %>%
+  group_by(LengthOfStay, rcount, num_cond) %>%
+  summarise(Freq = n()) %>%
+  ungroup()
+
+ggplot(count3, aes(x = fct_rev(LengthOfStay), y = Freq, color = num_cond)) +
+  geom_point() +
+  coord_flip() +
+  facet_wrap(~rcount, ncol = 1) +
+  labs(y="Number of Patients",
+       x="Length of Stay (In Days)",
+       color="Number of Conditions") +
+  scale_color_viridis_d(direction=-1) +
+  theme_bw(6)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
