@@ -13,7 +13,19 @@ library(patchwork)
 
 df <- read.csv("LengthOfStay.csv")
 df <- subset(df, select = -c(eid, discharged, vdate))
-df <- df %>% mutate(LengthOfStay = ifelse(lengthofstay>8, "9+", lengthofstay))
+df <- df %>% 
+  mutate(LengthOfStay = ifelse(lengthofstay>8, "9+", lengthofstay)) %>%
+  rename(Renal_Disease = dialysisrenalendstage,
+         Asthma = asthma,
+         Iron_Deficiency = irondef,
+         Pneumonia = pneum,
+         Substance_Dependence = substancedependence,
+         Major_Psychological_Disorder = psychologicaldisordermajor,
+         Depression = depress,
+         Other_Psychological_Disorder = psychother,
+         Fibrosis = fibrosisandother,
+         Malnutrition = malnutrition,
+         Blood_Disorder = hemo)
 ```
 
 ```{r}
@@ -21,22 +33,22 @@ df <- df %>% mutate(LengthOfStay = ifelse(lengthofstay>8, "9+", lengthofstay))
 df$los_char <- as.character(df$lengthofstay)
 
 # create a dataframe of the categorical data
-characteristics <- df %>% select(dialysisrenalendstage, asthma, irondef,
-                                 pneum, substancedependence, psychologicaldisordermajor,
-                                 depress, psychother, fibrosisandother, malnutrition,
-                                 hemo)
+characteristics <- df %>% select(Renal_Disease, Asthma, Iron_Deficiency,
+                                 Pneumonia, Substance_Dependence, Major_Psychological_Disorder,
+                                 Depression, Other_Psychological_Disorder, Fibrosis, Malnutrition,
+                                 Blood_Disorder)
 
-characteristics$dialysisrenalendstage <- as.character(characteristics$dialysisrenalendstage)
-characteristics$asthma <- as.character(characteristics$asthma)
-characteristics$irondef <- as.character(characteristics$irondef)
-characteristics$pneum <- as.character(characteristics$pneum)
-characteristics$substancedependence <- as.character(characteristics$substancedependence)
-characteristics$psychologicaldisordermajor <- as.character(characteristics$psychologicaldisordermajor)
-characteristics$depress <- as.character(characteristics$depress)
-characteristics$psychother <- as.character(characteristics$psychother)
-characteristics$fibrosisandother <- as.character(characteristics$fibrosisandother)
-characteristics$malnutrition <- as.character(characteristics$malnutrition)
-characteristics$hemo <- as.character(characteristics$hemo)
+characteristics$Renal_Disease <- as.character(characteristics$Renal_Disease)
+characteristics$Asthma <- as.character(characteristics$Asthma)
+characteristics$Iron_Deficiency <- as.character(characteristics$Iron_Deficiency)
+characteristics$Pneumonia <- as.character(characteristics$Pneumonia)
+characteristics$Substance_Dependence <- as.character(characteristics$Substance_Dependence)
+characteristics$Major_Psychological_Disorder <- as.character(characteristics$Major_Psychological_Disorder)
+characteristics$Depression <- as.character(characteristics$Depression)
+characteristics$Other_Psychological_Disorder <- as.character(characteristics$Other_Psychological_Disorder)
+characteristics$Fibrosis <- as.character(characteristics$Fibrosis)
+characteristics$Malnutrition <- as.character(characteristics$Malnutrition)
+characteristics$Blood_Disorder <- as.character(characteristics$Blood_Disorder)
 ```
 
 ```{r}
@@ -228,17 +240,17 @@ The majority of admitted patients did not have any of the conditions (pattern 1)
 ```{r}
 # implement a function to find the rows which match each pattern
 find_rows <- function(df, k) {
-  pat <- df %>% filter(dialysisrenalendstage==as.integer(top_patterns[k,2]),
-                      asthma==as.integer(top_patterns[k,3]),
-                      irondef==as.integer(top_patterns[k,4]),
-                      pneum==as.integer(top_patterns[k,5]),
-                      substancedependence==as.integer(top_patterns[k,6]),
-                      psychologicaldisordermajor==as.integer(top_patterns[k,7]),
-                      depress==as.integer(top_patterns[k,8]),
-                      psychother==as.integer(top_patterns[k,9]),
-                      fibrosisandother==as.integer(top_patterns[k,10]),
-                      malnutrition==as.integer(top_patterns[k,11]),
-                      hemo==as.integer(top_patterns[k,12])) %>%
+  pat <- df %>% filter(Renal_Disease==as.integer(top_patterns[k,2]),
+                      Asthma==as.integer(top_patterns[k,3]),
+                      Iron_Deficiency==as.integer(top_patterns[k,4]),
+                      Pneumonia==as.integer(top_patterns[k,5]),
+                      Substance_Dependence==as.integer(top_patterns[k,6]),
+                      Major_Psychological_Disorder==as.integer(top_patterns[k,7]),
+                      Depression==as.integer(top_patterns[k,8]),
+                      Other_Psychological_Disorder==as.integer(top_patterns[k,9]),
+                      Fibrosis==as.integer(top_patterns[k,10]),
+                      Malnutrition==as.integer(top_patterns[k,11]),
+                      Blood_Disorder==as.integer(top_patterns[k,12])) %>%
     add_column("pattern"=k)
   return(pat)
 }
