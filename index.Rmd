@@ -7,3 +7,4 @@ site: bookdown::bookdown_site
 
 # Introduction
 
+We will analyze and visualize link between Length of Stay in the critical care units of the Beth Israel Deaconess Medical Center between 2001 and 2012 and other medical data.

@@ -1,5 +1,5 @@
 # Data sources
 
-https://physionet.org/content/mimiciii-demo/1.4/
-https://microsoft.github.io/r-server-hospital-length-of-stay/input_data.html: data description link
-https://github.com/microsoft/r-server-hospital-length-of-stay/blob/master/Data/LengthOfStay.csv
+https://physionet.org/content/mimiciii-demo/1.4/  
+https://microsoft.github.io/r-server-hospital-length-of-stay/input_data.html: data description link  
+https://github.com/microsoft/r-server-hospital-length-of-stay/blob/master/Data/LengthOfStay.csv  

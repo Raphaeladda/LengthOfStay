@@ -30,7 +30,7 @@ var svg = d3.select("#my_dataviz")
           "translate(" + margin.left + "," + margin.top + ")");
 
 //Read the data
-d3.csv("data_interactive.csv", function(data) {
+d3.csv("https://raw.githubusercontent.com/Raphaeladda/LengthOfStay/main/initial/data_interactive.csv", function(data) {
 
     // List of groups (here I have one group per column)
     var allGroup = ["value0","value1","value2","value3","value4","value5"]
