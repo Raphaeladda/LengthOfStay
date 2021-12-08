@@ -1,1 +1,3 @@
 # Missing values
+
+There is no missing data in the MIMIC-III database.
