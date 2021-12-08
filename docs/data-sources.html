@@ -24,7 +24,7 @@
 <meta name="author" content="Eubin Park &amp; Raphaël Adda" />
 
 
-<meta name="date" content="2021-12-07" />
+<meta name="date" content="2021-12-08" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -101,9 +101,16 @@
             <section class="normal" id="section-">
 <div id="data-sources" class="section level1" number="2">
 <h1><span class="header-section-number">Chapter 2</span> Data sources</h1>
-<p><a href="https://physionet.org/content/mimiciii-demo/1.4/" class="uri">https://physionet.org/content/mimiciii-demo/1.4/</a><br />
-<a href="https://microsoft.github.io/r-server-hospital-length-of-stay/input_data.html" class="uri">https://microsoft.github.io/r-server-hospital-length-of-stay/input_data.html</a>: data description link<br />
-<a href="https://github.com/microsoft/r-server-hospital-length-of-stay/blob/master/Data/LengthOfStay.csv" class="uri">https://github.com/microsoft/r-server-hospital-length-of-stay/blob/master/Data/LengthOfStay.csv</a></p>
+<p>The dataset we are exploring comes from a database called MIMIC-III. MIMIC-III is a freely available database which contains the data of tens of thousands of patients admitted to the critical care unit of the Beth Israel Deaconess Medical Center in Boston, Massachussetts, between the years 2001 and 2012. The MIMIC-III database is a very popular data source for researchers interested in healthcare data, since all of its data is freely available, the data is collected from a wide range of patients from largely differing demographics, and also includes very detailed data on patient care and results.</p>
+<p>The data in this database is collected by healthcare workers of Beth Israel Deaconess Medical Center during their routine work, through two different critical care information systems. One such critical care system is the Philips CareVue Clinical Information System, and the other such critical care system is the iMDsoft MetaVision ICU. These critical care information systems record clinical data such as physiological data (i.e. heart rate, blood pressure, etc.), as well as documented progress notes throughout patient care provided by hospital caregivers. However, the database also contains records that are not exclusively collected by these information systems. Additional information is also included, such as patient demographics, laboratory test results, and admission and discharge summaries.</p>
+<p>As mentioned previously, the particular dataset from the MIMIC-III database that we are studying regards the hospital stays of Beth Israel Deaconess Medical Center patients. In total, there are 100,000 patient stays recorded in this dataset.</p>
+<p>As expected, the data contains a combination of both categorical and numerical data. The categorical data comprises some basic information about the patient admitted, including their gender (gender), the number of readmissions in the last 180 days (rcount), and the ID of the facility into which they were admitted (facid). The other categorical data in this dataset pertains to the medical histories of these patients – whether they have certain medical issues such as: renal disease, asthma, iron deficiency, pneumonia, substance dependence, depression, psychological disorder, fibrosis, malnutrition, and blood disorder.</p>
+<p>The data also contains numerical data, which are the results of laboratory tests or basic physiological measurements. Laboratory test results in this dataset include hematocrit levels, neutrophil levels, sodium levels, glucose levels, blood urea nitrogen levels, and creatinine levels. Physiological measurements in this dataset include BMI, average pulse, and average respiration. Of course, for each patient stay, the length of the stay has also been recorded.</p>
+<p>Data on the dates of admissions and dates of discharges were also included, but this was not useful to us, since in the de-identification process required of the MIMIC-III database by the Health Insurance Portability Act (HIPAA), the dates were randomized or transformed to further into the future in order to protect the anonymity of the patients. This prevented us from exploring how different months or seasons affected patient stays. However, the lengths of the patients’ stays were preserved, and this is the variable that we were able to focus on.</p>
+<p>Links:</p>
+<p>Database: <a href="https://physionet.org/content/mimiciii/1.4/" class="uri">https://physionet.org/content/mimiciii/1.4/</a></p>
+<p>Description of Data Variables: <a href="https://microsoft.github.io/r-server-hospital-length-of-stay/input_data.html" class="uri">https://microsoft.github.io/r-server-hospital-length-of-stay/input_data.html</a></p>
+<p>Data Source: <a href="https://github.com/microsoft/r-server-hospital-length-of-stay/blob/master/Data/LengthOfStay.csv" class="uri">https://github.com/microsoft/r-server-hospital-length-of-stay/blob/master/Data/LengthOfStay.csv</a></p>
 
 </div>
             </section>

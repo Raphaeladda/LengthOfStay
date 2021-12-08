@@ -15,4 +15,4 @@ Acknowledging the significance of healthcare data in the field of data analytics
 
 The main question we aim to answer at the end of this project is: How is the length of a patient's stay in the hospital related to their medical history and physiological state? 
 
-We hope that the findings of this project will be able to guide hospital managements in correctly anticipating staffing needs and resource allocations according to a patient's medical history and physiological data upon their admission. If this is successful, this will contribute towards improving hospitals' large-scale operations.
+We hope that the findings of this project will be able to guide hospital managements in correctly anticipating staffing needs and resource allocations according to a patient's medical history and physiological data upon their admission. If this is successful, this will contribute towards bettering hospitals' large-scale operations.
