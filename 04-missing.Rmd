@@ -1,4 +1,4 @@
 # Missing values
 
-Our dataset does not contain any missing values.
+The dataset we are exploring does not contain any missing values.
 
