@@ -158,10 +158,10 @@ rcount_dot <- ggplot(count2, aes(x=fct_rev(LengthOfStay), y=Freq, color=rcount))
 
 
 dat_int = count2%>%pivot_wider(names_from = rcount, values_from = Freq,values_fill = 0)
-colnames(dat_int) = c("LoS","0visit","1visit","2visits","3visits","4visits","+5visits")
+colnames(dat_int) = c("LoS","value0","value1","value2","value3","value4","value5")
 dat_int = dat_int%>%mutate(LoS = replace(LoS, LoS == '9+', 9))
 
-dat_int[c("0visit","1visit","2visits","3visits","4visits","+5visits")] = 100*prop.table(100*as.matrix(subset(dat_int,select = c("0visit","1visit","2visits","3visits","4visits","+5visits"))),2)
+dat_int[c("value0","value1","value2","value3","value4","value5")] = 100*prop.table(100*as.matrix(subset(dat_int,select = c("value0","value1","value2","value3","value4","value5"))),2)
 
 write.csv(dat_int,"data_interactive.csv", row.names = TRUE)
 

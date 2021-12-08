@@ -1,6 +1,6 @@
 # Interactive component
 
-**Proportion of patients in terms of Length of Stay for each number of previous visits in this hospital**
+**Proportion of patients in terms of Length of Stay and numer of previous visits in this hospital**
 
 <html lang="en">
 <meta charset="utf-8">
@@ -37,7 +37,7 @@ var svg = d3.select("#my_dataviz")
 d3.csv("https://raw.githubusercontent.com/Raphaeladda/LengthOfStay/main/initial/data_interactive.csv", function(data) {
 
     // List of groups (here I have one group per column)
-    var allGroup = ["0visit","1visit","2visits","3visits","4visits","+5visits"]
+    var allGroup = ["value0","value1","value2","value3","value4","value5"]
 
     // add the options to the button
     d3.select("#selectButton")
@@ -70,7 +70,7 @@ d3.csv("https://raw.githubusercontent.com/Raphaeladda/LengthOfStay/main/initial/
         .datum(data)
         .attr("d", d3.line()
           .x(function(d) { return x(+d.LoS) })
-          .y(function(d) { return y(+d.0visit) })
+          .y(function(d) { return y(+d.value0) })
         )
         .attr("stroke", "black")
         .style("stroke-width", 4)
@@ -83,7 +83,7 @@ d3.csv("https://raw.githubusercontent.com/Raphaeladda/LengthOfStay/main/initial/
       .enter()
       .append('circle')
         .attr("cx", function(d) { return x(+d.LoS) })
-        .attr("cy", function(d) { return y(+d.0visit) })
+        .attr("cy", function(d) { return y(+d.value0) })
         .attr("r", 7)
         .style("fill", "#69b3a2")
 
