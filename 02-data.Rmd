@@ -13,6 +13,9 @@ The data also contains numerical data, which are the results of laboratory tests
 Data on the dates of admissions and dates of discharges were also included, but this was not useful to us, since in the de-identification process required of the MIMIC-III database by the Health Insurance Portability Act (HIPAA), the dates were randomized or transformed to further into the future in order to protect the anonymity of the patients. This prevented us from exploring how different months or seasons affected patient stays. However, the lengths of the patients’ stays were preserved, and this is the variable that we were able to focus on. 
 
 Links:
-https://physionet.org/content/mimiciii/1.4/ 
-https://microsoft.github.io/r-server-hospital-length-of-stay/input_data.html: data description link  
-https://github.com/microsoft/r-server-hospital-length-of-stay/blob/master/Data/LengthOfStay.csv  
+
+Database: https://physionet.org/content/mimiciii/1.4/ 
+
+Description of Data Variables: https://microsoft.github.io/r-server-hospital-length-of-stay/input_data.html
+
+Data Source: https://github.com/microsoft/r-server-hospital-length-of-stay/blob/master/Data/LengthOfStay.csv  
