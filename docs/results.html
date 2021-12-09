@@ -24,7 +24,7 @@
 <meta name="author" content="Eubin Park &amp; Raphaël Adda" />
 
 
-<meta name="date" content="2021-12-08" />
+<meta name="date" content="2021-12-09" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -77,7 +77,12 @@
 <li class="chapter" data-level="2" data-path="data-sources.html"><a href="data-sources.html"><i class="fa fa-check"></i><b>2</b> Data sources</a></li>
 <li class="chapter" data-level="3" data-path="data-transformation.html"><a href="data-transformation.html"><i class="fa fa-check"></i><b>3</b> Data transformation</a></li>
 <li class="chapter" data-level="4" data-path="missing-values.html"><a href="missing-values.html"><i class="fa fa-check"></i><b>4</b> Missing values</a></li>
-<li class="chapter" data-level="5" data-path="results.html"><a href="results.html"><i class="fa fa-check"></i><b>5</b> Results</a></li>
+<li class="chapter" data-level="5" data-path="results.html"><a href="results.html"><i class="fa fa-check"></i><b>5</b> Results</a>
+<ul>
+<li class="chapter" data-level="5.1" data-path="results.html"><a href="results.html#histogram-of-the-number-of-patients-per-length-of-stay"><i class="fa fa-check"></i><b>5.1</b> Histogram of the number of patients per Length of Stay</a></li>
+<li class="chapter" data-level="5.2" data-path="results.html"><a href="results.html#analysis-of-connections-between-physiological-data-and-the-length-of-stay"><i class="fa fa-check"></i><b>5.2</b> Analysis of connections between physiological data and the Length Of Stay</a></li>
+<li class="chapter" data-level="5.3" data-path="results.html"><a href="results.html#analysis-of-categorical-data-pre-existing-conditions-number-of-previous-admissions"><i class="fa fa-check"></i><b>5.3</b> Analysis of Categorical Data: Pre-Existing Conditions &amp; Number of Previous Admissions</a></li>
+</ul></li>
 <li class="chapter" data-level="6" data-path="interactive-component.html"><a href="interactive-component.html"><i class="fa fa-check"></i><b>6</b> Interactive component</a></li>
 <li class="chapter" data-level="7" data-path="conclusion.html"><a href="conclusion.html"><i class="fa fa-check"></i><b>7</b> Conclusion</a></li>
 <li class="divider"></li>
@@ -101,26 +106,54 @@
             <section class="normal" id="section-">
 <div id="results" class="section level1" number="5">
 <h1><span class="header-section-number">Chapter 5</span> Results</h1>
+<div id="histogram-of-the-number-of-patients-per-length-of-stay" class="section level2" number="5.1">
+<h2><span class="header-section-number">5.1</span> Histogram of the number of patients per Length of Stay</h2>
+<p><img src="finalproj_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
+<p>This histogram shows the distribution of our data: the number of patients decreases with the Length of Stay at the hospital.</p>
+</div>
+<div id="analysis-of-connections-between-physiological-data-and-the-length-of-stay" class="section level2" number="5.2">
+<h2><span class="header-section-number">5.2</span> Analysis of connections between physiological data and the Length Of Stay</h2>
 <p><img src="finalproj_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
+<p>These scatterplots allow to detect which physiological characteristics are linked with the Length of Stay of a patient in this hospital.
+We notice a connection between the Length of Stay and:<br />
+- the average hematocrit value during encounter
+- the average blood urea nitrogen value during encounter
+- the average respiration during encounter</p>
+<p>These observations are confirmed by the correlation matrix below:</p>
+<p><img src="finalproj_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
+<p>Moreover this correlation matrix shows us connections among the physiological data: indeed, there is a clear correlation between the average blood urea nitrogen value and the the average respiration, and also between the average blood urea nitrogen value and the average hematocrit value.</p>
+<p>This latter correlation motivates us to deepen our analysis and we will try to detect more patterns between the blood urea nitrogen value, average hematocrit value and the Length of Stay of a patient in this hospital.</p>
+<p><img src="finalproj_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
+<p>Although it seems scriptsly unclear, this scatterplot shows interesting patterns.</p>
+<p>We can deduce two things:<br />
+- The localisation of the points shows that the high values of blood urea nitrogen are associated to low values of hematocrit (it is almost impossible to have high values for both)
+- The intensity of the purple increases from the top left to the bottom right of the graph (an intense shade of purple means a high value for Length of Stay): it means that the length of stay increases with high blood urea nitrogen values and low hematocrit values.</p>
+<p><img src="finalproj_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
+<p>Finally these heatmaps confirms our previous analysis: when the Length of Stay increases, the bins of the heatmaps spread toward the bottom right of the graphs which means that patients with low hematocrit values and high blood urea nitrogen values have a much more higher probability to stay a long time in the hospital than other patients.</p>
+</div>
+<div id="analysis-of-categorical-data-pre-existing-conditions-number-of-previous-admissions" class="section level2" number="5.3">
+<h2><span class="header-section-number">5.3</span> Analysis of Categorical Data: Pre-Existing Conditions &amp; Number of Previous Admissions</h2>
+<p><img src="finalproj_files/figure-html/unnamed-chunk-12-1.png" width="672" /></p>
 <p>The boxplot in plot A clearly shows that the length of stay for a patient is generally higher if the patient has some pre-existing conditions in comparison to if they do not have any. In fact, the median stay length for patients without any conditions (2 days) is much shorter than the the median stay length for patients with conditions (5 days). Notably, as seen in the bar chart of plot B, there are no patients who had pre-existing conditions that also stayed at the hospital for less than 3 days.</p>
 <p>The distributions of hospital stay lengths for patients both without and with pre-existing conditions are uni-modal and right-skewed; they both peak at the shortest length of stay. However, the interquartile range for patients without conditions is much larger (about twice the size) than that for patients with conditions, indicating that although most patients without conditions had a short hospital stay, there also were a noteworthy number of these patients who had longer stays than their condition history would suggest. However, of patients who had the longest hospital stays (8, 9+ days), more had pre-existing conditions, as seen in plot B.</p>
-<p><img src="finalproj_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
+<p><img src="finalproj_files/figure-html/unnamed-chunk-13-1.png" width="672" /></p>
 <p>As seen in the bar graph of plot A, most of the patients admitted did not have any pre-existing medical conditions. A substantial amount of admitted patients had 1 or 2 conditions, but few had more than 3.</p>
 <p>The cleveland dot plot in plot B shows that, as the length of stay in hospital increases, the number of conditions that the patient has generally increases. Patients who stayed only 1-2 days in the hospital all have 0 conditions. However, as the length of stay increases, it is clear to see that the number of patients who have no conditions decreases. This is also the case for patients who have 1 or 2 conditions, and for patients who have 3 conditions - though to a lesser extent. However, patients with no/few conditions are the most abundant, and even as the length of stay increases, there are more patients with few conditions than many. Patients who have 4 or more conditions stayed for a minimum of 4 days, though there are very few of them and the number of such patients for each length of stay is generally constant. Overall, this shows that the more pre-existing conditions a patient has, the more likely it is for them to stay longer in the hospital.</p>
-<p><img src="finalproj_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
+<p><img src="finalproj_files/figure-html/unnamed-chunk-14-1.png" width="672" /></p>
 <p>The bar graph in plot A shows that the majority of admitted patients had not been previously admitted to the hospital. The rest of the patients had previously been admitted to the hospital 1, 2, 3, 4 times at similar frequencies.</p>
 <p>The cleveland dot plot in plot B shows that, as the number of previous admissions increases, the length of stay in the hospital also generally increases. The number of patients who either had 0 or 1 previous admissions to the hospital generally decreases as the length of stay increases. In fact the patients who had the shortest stays (1-3 days) had at most only 1 previous admission. Up until stays of 4 days, it can be seen that patients who had the fewest (i.e. 0) previous admissions were generally the most abundant. However, interestingly, this trend reverses for stays of 6 days or longer. For stays of 6 ore more days, it seems that patients who have a high number of previous admissions are the more abundant, whereas patients with few previous admissions are rarer. In fact, of the patients that had the longest stays (9+ days), all had been admitted to the hospital at least twice, with patients who had 5 or more previous admissions being the most common.</p>
-<p><img src="finalproj_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
+<p><img src="finalproj_files/figure-html/unnamed-chunk-15-1.png" width="672" /></p>
 <p>The above mosaic plot shows that there is a positive relationship between the number of conditions, the number of previous admissions, and the length of stay.</p>
 <p>(Note: For clarity in the mosaic plot, the number of categories for each variable has been decreased. “Short” stays in the hospital refer to those that are 4 days (the median length of stay) or less, and “long” stays in the hospital refer to those that are 5 days or more.)</p>
 <p>For patients who had 0 previous admissions, the proportion of patients who had “long” stays increased as the number of conditions increased. This trend is also seen for patients with 1 or 2 previous admissions to the hospital. Patients who had 3 or more previous admissions, however, all had “long” hospital stays regardless of the number of conditions, suggesting that for these patients, the number of conditions is irrelevant or at least not as important.</p>
-<p><img src="finalproj_files/figure-html/unnamed-chunk-12-1.png" width="672" /></p>
+<p><img src="finalproj_files/figure-html/unnamed-chunk-16-1.png" width="672" /></p>
 <p>The above plot is a plot visualizing the top 8 most common patterns of conditions admitted patients have. In the top-most tile plot, each column represents a pattern of condition that a certain number of admitted patients presented, and each row represents a single medical condition. A grey tile means that this pattern does not include this condition, whereas a pink tile means that the pattern does. For example, pattern 1 (column 1) is the pattern where the patient did not have any of the conditions. Pattern 2 (column 2) is the pattern where the patient only had psychological disorder major, but not any of the other conditions. The columns are ordered from 1 to 8 by frequency in the data set, which can be seen in the bar graph below, showing the percentage frequency of each pattern.</p>
 <p>The majority of admitted patients did not have any of the conditions (pattern 1), and the next seven most common patterns were comparatively much rarer. Most of the top patterns had only one of the given conditions, although patterns 4 and 8 had two conditions each. In these patterns, the most common condition was psychological disorder major (seen in 3 patterns) and iron deficiency (seen in 2 patterns). Some conditions were not seen at all in the top patterns, such as pneumonia or malnutrition.</p>
-<p><img src="finalproj_files/figure-html/unnamed-chunk-13-1.png" width="672" /></p>
+<p><img src="finalproj_files/figure-html/unnamed-chunk-17-1.png" width="672" /></p>
 <p>The above boxplot shows that the patients who exhibited the most common pattern (no conditions) generally had a shorter stay in the hospital than patients exhibiting any other pattern. In fact, the median length of stay for patients with condition pattern 1 (2 days) was shorter than the minimum length of stay for patients of any other condition pattern.</p>
 <p>Interestingly, the 5 of the next 7 most common condition patterns had the same median length of stay (5 days), while the other 2 patterns also had the same median length (4 days). The minimums and 75th quartiles of all the next top 7 patterns were also all the same.</p>
 
+</div>
 </div>
             </section>
 
