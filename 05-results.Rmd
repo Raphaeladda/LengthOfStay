@@ -1,62 +1,82 @@
 # Results
 
 ```{r}
-library(tidyverse)
-library(patchwork)
-
-df <- read.csv("LengthOfStay.csv")
-df <- subset(df, select = -c(eid, discharged, vdate))
-df <- df %>% 
-  mutate(LengthOfStay = ifelse(lengthofstay>8, "9+", lengthofstay)) %>%
-  rename(Renal_Disease = dialysisrenalendstage,
-         Asthma = asthma,
-         Iron_Deficiency = irondef,
-         Pneumonia = pneum,
-         Substance_Dependence = substancedependence,
-         Major_Psychological_Disorder = psychologicaldisordermajor,
-         Depression = depress,
-         Other_Psychological_Disorder = psychother,
-         Fibrosis = fibrosisandother,
-         Malnutrition = malnutrition,
-         Blood_Disorder = hemo)
+source("scripts/import_data.R")
 ```
 
+## Histogram of the number of patients per Length of Stay
+
 ```{r}
-# create a character column for lengthofstay
-df$los_char <- as.character(df$lengthofstay)
+ggplot(df, aes(LengthOfStay)) +
+    geom_bar() +
+    ggtitle("Distribution of Patient Hospital Stay Lengths") +
+    xlab("Length of Stay (in days)") +
+  ylab("Number of Patients") +
+    scale_x_discrete(limit = c(1:8,"9+")) +
+    theme_bw(12)
+```
+  
+This histogram shows the distribution of our data: the number of patients decreases with the Length of Stay at the hospital.
 
-# create a dataframe of the categorical data
-characteristics <- df %>% select(Renal_Disease, Asthma, Iron_Deficiency,
-                                 Pneumonia, Substance_Dependence, Major_Psychological_Disorder,
-                                 Depression, Other_Psychological_Disorder, Fibrosis, Malnutrition,
-                                 Blood_Disorder)
+## Analysis of connections between physiological data and the Length Of Stay
 
-characteristics$Renal_Disease <- as.character(characteristics$Renal_Disease)
-characteristics$Asthma <- as.character(characteristics$Asthma)
-characteristics$Iron_Deficiency <- as.character(characteristics$Iron_Deficiency)
-characteristics$Pneumonia <- as.character(characteristics$Pneumonia)
-characteristics$Substance_Dependence <- as.character(characteristics$Substance_Dependence)
-characteristics$Major_Psychological_Disorder <- as.character(characteristics$Major_Psychological_Disorder)
-characteristics$Depression <- as.character(characteristics$Depression)
-characteristics$Other_Psychological_Disorder <- as.character(characteristics$Other_Psychological_Disorder)
-characteristics$Fibrosis <- as.character(characteristics$Fibrosis)
-characteristics$Malnutrition <- as.character(characteristics$Malnutrition)
-characteristics$Blood_Disorder <- as.character(characteristics$Blood_Disorder)
+```{r}
+source("scripts/physio.R")
+
+sc_1 + sc_2 + sc_3 + sc_4 + sc_5 + sc_6 + sc_7 + sc_8 + sc_9 + plot_layout()
 ```
 
+These scatterplots allow to detect which physiological characteristics are linked with the Length of Stay of a patient in this hospital. 
+We notice a connection between the Length of Stay and:  
+- the average hematocrit value during encounter
+- the average blood urea nitrogen value during encounter 
+- the average respiration during encounter  
+
+These observations are confirmed by the correlation matrix below: 
+
 ```{r}
+source("scripts/corrplot.R")
+
+ggcorrplot(cor(continuous_df), hc.order = TRUE, type = "lower",
+   lab = TRUE)
+```
+
+Moreover this correlation matrix shows us connections among the physiological data: indeed, there is a clear correlation between the average blood urea nitrogen value and the the average respiration, and also between the average blood urea nitrogen value and the average hematocrit value.  
+  
+This latter correlation motivates us to deepen our analysis and we will try to detect more patterns between the blood urea nitrogen value, average hematocrit value and the Length of Stay of a patient in this hospital.
+
+```{r}
+library(RColorBrewer)
+
+ggplot(df, aes(bloodureanitro, hematocrit)) + geom_point(size = .5,alpha=0.3) + theme_grey(12) +
+  theme(legend.position = "bottom") + geom_point(aes(color = LengthOfStay)) +
+  xlab("Blood Urea Nitrogen (mg/dL)") + ylab("Hematocrit (g/dL)") + 
+  ggtitle("Blood Urea Nitrogen vs. Hematocrit") +
+  scale_color_manual(values = c(brewer.pal(9,"Purples")[9], brewer.pal(9,"Purples")[1:8])) +
+  xlim(0, 200)
+
+```
+
+Although it seems scriptsly unclear, this scatterplot shows interesting patterns.
+
+We can deduce two things:  
+- The localisation of the points shows that the high values of blood urea nitrogen are associated to low values of hematocrit (it is almost impossible to have high values for both)
+- The intensity of the purple increases from the top left to the bottom right of the graph (an intense shade of purple means a high value for Length of Stay): it means that the length of stay increases with high blood urea nitrogen values and low hematocrit values.
+
+```{r}
+source("scripts/heatmap.R")
+
+heatmap_c_1  + heatmap_c_2 + heatmap_c_3 + heatmap_c_4 + heatmap_c_5 + heatmap_c_6 + heatmap_c_7 + heatmap_c_8 + heatmap_c_m9 + plot_layout()
+```
+
+Finally these heatmaps confirms our previous analysis: when the Length of Stay increases, the bins of the heatmaps spread toward the bottom right of the graphs which means that patients with low hematocrit values and high blood urea nitrogen values have a much more higher probability to stay a long time in the hospital than other patients.
+
+## Analysis of Categorical Data: Pre-Existing Conditions & Number of Previous Admissions
+
+```{r}
+source("scripts/two_patterns.R")
+
 # reducing to 2 patterns only: with/without ANY conditions
-
-# make a function that can reduce to 2 patterns
-with_without <- function(df) {
-  a <- df %>% rowwise() %>%
-    mutate(char = ifelse(sum(c_across(Renal_Disease:Blood_Disorder)) == 0, "Without", "With"))
-  return(a)
-}
-
-# use this function to create a new df with patterns: without/with any conditions
-two_patt <- with_without(df) %>%
-  transform(char_fct=factor(char, levels=c("Without", "With")))
 
 # plot a boxplot of the lengths of stays of patients without/with any conditions
 bxp <- ggplot(two_patt, aes(x=lengthofstay, y=char)) +
@@ -85,11 +105,9 @@ The distributions of hospital stay lengths for patients both without and with pr
 
 
 ```{r}
-# analysis according to the number of conditions a patient has
+source("scripts/number_cond.R")
 
-# create a new column num_cond counting the number of conditions a patient has
-df$num_char <- rowSums(df[, c(3:13)])
-df <- df %>% mutate(num_cond = ifelse(num_char>5, "6+", num_char))
+# analysis according to the number of conditions a patient has
 
 # create a histogram of the number of medical conditions
 cond_his <- ggplot(df, aes(x=num_cond)) +
@@ -99,11 +117,6 @@ cond_his <- ggplot(df, aes(x=num_cond)) +
   theme_bw(12)
 
 # create a cleveland dotplot to see how the number of conditions affects the length of stay
-count <- df %>%
-  group_by(LengthOfStay, num_cond) %>%
-  summarise(Freq = n()) %>%
-  ungroup()
-
 cond_dot <- ggplot(count, aes(x=fct_rev(LengthOfStay), y=Freq, color=num_cond)) +
   geom_point(size=3) +
   coord_flip() +
@@ -125,6 +138,8 @@ The cleveland dot plot in plot B shows that, as the length of stay in hospital i
 
 
 ```{r}
+source("scripts/rcount.R")
+
 # analysis according to the number of previous admissions (rcount)
 
 # create a histogram of the number of previous admissions
@@ -135,11 +150,6 @@ rcount_his <- ggplot(df, aes(x=rcount)) +
   theme_bw(12)
 
 # create a cleveland dotplot to see how the number of previous admissions affects length of stay
-count2 <- df %>%
-  group_by(LengthOfStay, rcount) %>%
-  summarise(Freq = n()) %>%
-  ungroup()
-
 rcount_dot <- ggplot(count2, aes(x=fct_rev(LengthOfStay), y=Freq, color=rcount)) +
   geom_point(size=3) +
   coord_flip() +
@@ -149,18 +159,6 @@ rcount_dot <- ggplot(count2, aes(x=fct_rev(LengthOfStay), y=Freq, color=rcount))
        title=str_wrap("Hospital Stay Lengths by Number of Previous Admissions", 50)) +
   scale_color_viridis_d(direction=-1) +
   theme_bw(12)
-
-
-
-dat_int = count2%>%pivot_wider(names_from = rcount, values_from = Freq,values_fill = 0)
-colnames(dat_int) = c("LoS","zero","one","two","three","four","five_or_more")
-dat_int = dat_int%>%mutate(LoS = replace(LoS, LoS == '9+', 9))
-
-dat_int[c("zero","one","two","three","four","five_or_more")] = 100*prop.table(100*as.matrix(subset(dat_int,select = c("zero","one","two","three","four","five_or_more"))),2)
-
-write.csv(dat_int,"data_interactive.csv", row.names = TRUE)
-
-
 
 # combine the two plots
 rcount_his + rcount_dot + plot_layout(heights=c(1, 3)) +
@@ -173,14 +171,9 @@ The cleveland dot plot in plot B shows that, as the number of previous admission
 
 
 ```{r}
-# mosaic plot to dependency between number of conditions, number of admissions, and los
+source("scripts/for_mosaic.R")
 
-# decrease the number of bins for each category
-df <- df %>% 
-  mutate(two_cat = ifelse(lengthofstay<5, "Short", "Long")) %>%
-  transform(Length_of_Stay=factor(two_cat, levels=c("Short", "Long"))) %>%
-  mutate(Number_of_Conditions = ifelse(num_cond>1, "2+", num_cond)) %>%
-  mutate(Number_of_Previous_Admissions = ifelse(rcount>2, "3+", rcount))
+# mosaic plot to dependency between number of conditions, number of admissions, and los
 
 # create mosaic plot
 vcd::mosaic(Length_of_Stay ~ Number_of_Conditions + Number_of_Previous_Admissions, df,
@@ -195,23 +188,9 @@ For patients who had 0 previous admissions, the proportion of patients who had "
 
 
 ```{r}
+source("scripts/patt.R")
+
 # create a pattern plot to visualize the most common patterns of medical conditions in the dataset
-
-# transform the data into the correct format and select the top 8 most common patterns
-patterns <- characteristics %>%
-  group_by_all() %>%
-  count(name="count", sort=TRUE) %>%
-  ungroup %>%
-  rownames_to_column("id")
-
-top_patterns <- patterns[1:8,]
-
-top_patterns$percentage <- top_patterns$count / nrow(characteristics)
-
-tidy_patt <- top_patterns %>%
-  pivot_longer(!c(id, count, percentage),
-               names_to = "characteristic",
-               values_to = "yn")
 
 # plot visualization of the top 8 patterns
 p1 <- ggplot(tidy_patt, aes(x=characteristic, y=id, fill=yn)) +
@@ -248,35 +227,7 @@ The majority of admitted patients did not have any of the conditions (pattern 1)
 
 
 ```{r}
-# implement a function to find the rows which match each pattern
-find_rows <- function(df, k) {
-  pat <- df %>% filter(Renal_Disease==as.integer(top_patterns[k,2]),
-                      Asthma==as.integer(top_patterns[k,3]),
-                      Iron_Deficiency==as.integer(top_patterns[k,4]),
-                      Pneumonia==as.integer(top_patterns[k,5]),
-                      Substance_Dependence==as.integer(top_patterns[k,6]),
-                      Major_Psychological_Disorder==as.integer(top_patterns[k,7]),
-                      Depression==as.integer(top_patterns[k,8]),
-                      Other_Psychological_Disorder==as.integer(top_patterns[k,9]),
-                      Fibrosis==as.integer(top_patterns[k,10]),
-                      Malnutrition==as.integer(top_patterns[k,11]),
-                      Blood_Disorder==as.integer(top_patterns[k,12])) %>%
-    add_column("pattern"=k)
-  return(pat)
-}
-
-# find such rows and create a new data frame
-pat1 <- find_rows(df, 1)
-pat2 <- find_rows(df, 2)
-pat3 <- find_rows(df, 3)
-pat4 <- find_rows(df, 4)
-pat5 <- find_rows(df, 5)
-pat6 <- find_rows(df, 6)
-pat7 <- find_rows(df, 7)
-pat8 <- find_rows(df, 8)
-
-df2 <- rbind(pat1, pat2, pat3, pat4, pat5, pat6, pat7, pat8)
-df2$pattern <- as.character(df2$pattern)
+source("scripts/new_df.R")
 
 # compare the lengths of stays across different condition patterns
 ggplot(df2, aes(x=lengthofstay, y=fct_rev(pattern))) +
