@@ -1,2 +1,9 @@
 # Conclusion
 
+Discuss limitations and future directions, lessons learned.
+
+In conclusion, from this MIMIC-III Length of Stay dataset, we have learned various things about what may reasonably predict an incoming patient's length of stay in the hospital. Hopefully, these results may aid hospital management in more efficiently scheduling hospital staff and allocating resources. 
+
+Some limitations
+
+Some future directions are
