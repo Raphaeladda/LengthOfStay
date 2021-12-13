@@ -1,4 +1,120 @@
 # Missing values
 
 The dataset we are exploring does not contain any missing values.
+```{r}
+library(tidyverse)
+library(patchwork)
+source("scripts/import_data.R")
+```
+
+
+```{r}
+plot_missing <- function(sample_data, percent = FALSE){
+    missing_patterns <- data.frame(is.na(sample_data)) %>%
+      group_by_all() %>%
+      count(name = "count", sort = TRUE) %>%
+      ungroup() %>%
+      rownames_to_column("id")
+  
+  missing_patterns = missing_patterns %>%
+  rowwise() %>%
+  mutate(complete = ifelse(sum(c_across(
+  names(missing_patterns)[! names(missing_patterns) %in% 
+  c("count", "id")])) == 0, 1.1, 1))
+  
+  complete_row = missing_patterns[missing_patterns$complete == 1.1, ]$id
+  
+  if (percent){
+      missing_patterns = missing_patterns %>%
+          mutate(count = count / nrow(sample_data) * 100)
+  }
+  
+  # convert missing_patterns into tidy format
+  tidy_pattern = missing_patterns %>%
+      select(-count) %>%
+      gather(key, value, -c(id, complete))
+  
+#missing values by rows
+  missing_rows = colSums(is.na(sample_data)) %>%
+      sort(decreasing = TRUE)
+  
+  miss_rows=data.frame(missing_rows) %>%
+    rownames_to_column("id")
+  
+  if (percent){
+      miss_rows = miss_rows %>%
+          mutate(missing_rows = missing_rows/nrow(sample_data)*100)
+  }
+  
+  # p1 is a plot of missing values by rows
+  p1 = ggplot(miss_rows, aes(x = reorder(id, -missing_rows), 
+                             y = missing_rows)) + 
+      geom_col(fill = 'cornflowerblue', alpha = 0.7) + 
+      xlab('') + 
+      ylab('num rows\n missing') +
+      theme_bw(7) +
+      theme(panel.grid.major.x = element_blank(),
+            panel.grid.minor = element_blank())
+  
+  if (percent){
+      p1 = p1 + ylab('% rows\n missing') + 
+          scale_y_continuous(limits = c(0,100))
+  }
+  else{
+      p1 = p1 + ylab('num rows\n missing')
+  }
+  
+  # p3 is a plot of missing patterns by count
+  p3 = ggplot(missing_patterns, aes(x = count, 
+                                    y = fct_reorder(id, as.integer(id)))) +
+      geom_col(fill = 'cornflowerblue', aes(alpha = complete)) +
+      xlab('row count')+
+      ylab('') +
+      scale_y_discrete(limits=rev) +
+      scale_alpha(range = c(0.7, 1.0))+
+      theme_bw(7) +
+      theme(legend.position = "none") +
+      theme(panel.grid.major.y = element_blank(),
+            panel.grid.minor.y = element_blank())
+  
+  if (percent){
+      p3 = p3 + xlab('% rows') +
+          scale_x_continuous(limits = c(0,100))
+  }
+  else{
+      p3 = p3 + xlab('row count')
+  }
+  
+  # p2 is a plot of missing patterns by columns
+  p2 = ggplot(tidy_pattern, aes(x = fct_reorder(key, -value, sum), 
+                                y = fct_rev(fct_reorder(id,as.integer(id))), 
+                                fill = value)) +
+      geom_tile(color = "white", aes(alpha = complete))  +
+      scale_fill_manual(values=c("gray81", "plum3")) +
+      xlab('variable') +
+      ylab('missing patterns')+
+      scale_alpha(range = c(0.7, 1.0))+
+      theme_bw(7) +
+      theme(legend.position = "none") +
+      theme(panel.grid.major.x = element_blank(),
+            panel.grid.major.y = element_blank())
+  
+  if (length(complete_row) != 0){
+      li = levels(fct_reorder(tidy_pattern$key, -tidy_pattern$value, sum))
+      p2 = p2 + annotate('text', x = li[as.integer(length(li)/2)], 
+                         y = complete_row, label = 'complete cases')
+  }
+  
+  graphs = p1 + plot_spacer() + p2 + p3 +
+      plot_layout(widths=(c(3,0.8)), heights=c(1,4)) 
+  
+  return (graphs)
+}
+```
+
+```{r}
+df_missing = df
+names(df_missing) = abbreviate(names(df_missing),minlength = 2)
+plot_missing(df_missing)
+```
 
