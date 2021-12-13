@@ -24,7 +24,7 @@
 <meta name="author" content="Eubin Park &amp; Raphaël Adda" />
 
 
-<meta name="date" content="2021-12-09" />
+<meta name="date" content="2021-12-13" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -79,9 +79,10 @@
 <li class="chapter" data-level="4" data-path="missing-values.html"><a href="missing-values.html"><i class="fa fa-check"></i><b>4</b> Missing values</a></li>
 <li class="chapter" data-level="5" data-path="results.html"><a href="results.html"><i class="fa fa-check"></i><b>5</b> Results</a>
 <ul>
-<li class="chapter" data-level="5.1" data-path="results.html"><a href="results.html#histogram-of-the-number-of-patients-per-length-of-stay"><i class="fa fa-check"></i><b>5.1</b> Histogram of the number of patients per Length of Stay</a></li>
-<li class="chapter" data-level="5.2" data-path="results.html"><a href="results.html#analysis-of-connections-between-physiological-data-and-the-length-of-stay"><i class="fa fa-check"></i><b>5.2</b> Analysis of connections between physiological data and the Length Of Stay</a></li>
+<li class="chapter" data-level="5.1" data-path="results.html"><a href="results.html#distribution-of-patients-by-length-of-stay-in-hospital"><i class="fa fa-check"></i><b>5.1</b> Distribution of Patients by Length of Stay in Hospital</a></li>
+<li class="chapter" data-level="5.2" data-path="results.html"><a href="results.html#correlations-between-physiological-data-and-the-length-of-stay"><i class="fa fa-check"></i><b>5.2</b> Correlations between Physiological Data and the Length of Stay</a></li>
 <li class="chapter" data-level="5.3" data-path="results.html"><a href="results.html#analysis-of-categorical-data-pre-existing-conditions-number-of-previous-admissions"><i class="fa fa-check"></i><b>5.3</b> Analysis of Categorical Data: Pre-Existing Conditions &amp; Number of Previous Admissions</a></li>
+<li class="chapter" data-level="5.4" data-path="results.html"><a href="results.html#most-common-patterns-of-pre-existing-medical-conditions"><i class="fa fa-check"></i><b>5.4</b> Most Common Patterns of Pre-Existing Medical Conditions</a></li>
 </ul></li>
 <li class="chapter" data-level="6" data-path="interactive-component.html"><a href="interactive-component.html"><i class="fa fa-check"></i><b>6</b> Interactive component</a></li>
 <li class="chapter" data-level="7" data-path="conclusion.html"><a href="conclusion.html"><i class="fa fa-check"></i><b>7</b> Conclusion</a></li>
@@ -106,9 +107,9 @@
             <section class="normal" id="section-">
 <div id="data-transformation" class="section level1" number="3">
 <h1><span class="header-section-number">Chapter 3</span> Data transformation</h1>
-<p>The original data provided by the critical care units of the Beth Israel Deaconess Medical Center between 2001 and 2012 are available on the following link <a href="https://physionet.org/content/mimiciii-demo/1.4/" class="uri">https://physionet.org/content/mimiciii-demo/1.4/</a> as SQL table.<br />
-Microsoft provides a cleaned csv file on its official github repository: <a href="https://github.com/microsoft/r-server-hospital-length-of-stay" class="uri">https://github.com/microsoft/r-server-hospital-length-of-stay</a>.<br />
-Our csv is available in the file “Data” and it is named: “LengthOfStay.csv”.</p>
+<p>The original data provided by the critical care units of the Beth Israel Deaconess Medical Center between 2001 and 2012 are available on the following link <a href="https://physionet.org/content/mimiciii-demo/1.4/" class="uri">https://physionet.org/content/mimiciii-demo/1.4/</a> as an SQL table.</p>
+<p>Microsoft provides a cleaned csv file on its official github repository: <a href="https://github.com/microsoft/r-server-hospital-length-of-stay" class="uri">https://github.com/microsoft/r-server-hospital-length-of-stay</a>.</p>
+<p>Our csv is available on our github repository and it is named: “LengthOfStay.csv”. We were able to load this data into R by simply using “read.csv()”; this is done in the script “import_data.R” located within the “scripts” file.</p>
 
 </div>
             </section>

@@ -9,7 +9,7 @@ df <- subset(df, select = -c(eid, discharged, vdate))
 
 # rename categorical data columns
 df <- df %>% 
-  mutate(LengthOfStay = ifelse(lengthofstay>8, "9+", lengthofstay)) %>%
+  mutate(LengthOfStay = ifelse(lengthofstay>10, "11+", lengthofstay)) %>%
   rename(Renal_Disease = dialysisrenalendstage,
          Asthma = asthma,
          Iron_Deficiency = irondef,
