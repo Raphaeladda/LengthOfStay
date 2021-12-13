@@ -1,6 +1,7 @@
 # Interactive component
 
-**Proportion of patients in terms of Length of Stay and numer of previous visits in this hospital**
+**Proportion of patients in terms of Length of Stay and number of previous visits in this hospital**  
+Chose the number of previous admissions thanks to the button below.
 
 <html lang="en">
 <meta charset="utf-8">
@@ -59,7 +60,8 @@ d3.csv("https://raw.githubusercontent.com/Raphaeladda/LengthOfStay/main/initial/
     // Add Y axis
     var y = d3.scaleLinear()
       .domain( [0,100])
-      .range([ height, 0 ]);
+      .range([ height, 0 ])
+
     svg.append("g")
       .call(d3.axisLeft(y));
 
@@ -86,6 +88,18 @@ d3.csv("https://raw.githubusercontent.com/Raphaeladda/LengthOfStay/main/initial/
         .attr("cy", function(d) { return y(+d.zero) })
         .attr("r", 7)
         .style("fill", "#69b3a2")
+      
+    // Add the text label for the x axis
+    svg.append("text")
+      .attr("transform", "translate(" + (width + margin.left) + " ," + (height + 0.7*margin.bottom) + ")")
+      .style("text-anchor", "middle")
+      .text("Length Of Stay");
+
+    // Add the text label for the y axis
+    svg.append("text")
+      .attr("transform", "translate(" + (3*margin.left) + " ," + (margin.top) + ")")
+      .style("text-anchor", "middle")
+      .text("percentage of patients");
 
 
     // A function that update the chart
