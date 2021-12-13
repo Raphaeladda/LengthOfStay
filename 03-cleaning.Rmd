@@ -1,4 +1,7 @@
 # Data transformation
-The original data provided by the critical care units of the Beth Israel Deaconess Medical Center between 2001 and 2012 are available on the following link https://physionet.org/content/mimiciii-demo/1.4/ as SQL table.  
-Microsoft provides a cleaned csv file on its official github repository:   https://github.com/microsoft/r-server-hospital-length-of-stay.  
-Our csv is available in the file "Data" and it is named: "LengthOfStay.csv".
+
+The original data provided by the critical care units of the Beth Israel Deaconess Medical Center between 2001 and 2012 are available on the following link https://physionet.org/content/mimiciii-demo/1.4/ as an SQL table.
+
+Microsoft provides a cleaned csv file on its official github repository:   https://github.com/microsoft/r-server-hospital-length-of-stay.
+
+Our csv is available on our github repository and it is named: "LengthOfStay.csv". We were able to load this data into R by simply using "read.csv()"; this is done in the script "import_data.R" located within the "scripts" file.

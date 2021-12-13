@@ -3,8 +3,9 @@ data-sources
 data-transformation
 missing-values
 results
-histogram-of-the-number-of-patients-per-length-of-stay
-analysis-of-connections-between-physiological-data-and-the-length-of-stay
+distribution-of-patients-by-length-of-stay-in-hospital
+correlations-between-physiological-data-and-the-length-of-stay
 analysis-of-categorical-data-pre-existing-conditions-number-of-previous-admissions
+most-common-patterns-of-pre-existing-medical-conditions
 interactive-component
 conclusion
