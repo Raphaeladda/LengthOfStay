@@ -7,12 +7,14 @@ source("scripts/import_data.R")
 ## Distribution of Patients by Length of Stay in Hospital
 
 ```{r}
+library(scales)
 ggplot(df, aes(LengthOfStay)) +
     geom_bar() +
     ggtitle("Distribution of Patient Hospital Stay Lengths") +
     xlab("Length of Stay (in days)") +
-  ylab("Number of Patients") +
+  ylab("Number of Patients (In Thousands)") +
     scale_x_discrete(limit = c(1:10,"11+")) +
+  scale_y_continuous(labels = unit_format(unit="", scale = 1/1000)) +
     theme_bw(12)
 ```
   
@@ -121,8 +123,9 @@ bxp <- ggplot(two_patt, aes(x=lengthofstay, y=char)) +
 his <- ggplot(two_patt, aes(x=LengthOfStay)) +
   geom_bar() +
     scale_x_discrete(limit = c(1:10,"11+")) +
+  scale_y_continuous(labels = unit_format(unit="", scale = 1/1000)) +
   facet_wrap(~char_fct) +
-  labs(x="Length of Stay (Number of Days)", y="Number of Patients",
+  labs(x="Length of Stay (Number of Days)", y=str_wrap("Number of Patients (In Thousands)", 20),
        title=str_wrap("Distributions of Hospital Stay Lengths for Patients Without/With Pre-Existing Conditions", 60)) +
   theme_bw(12)
 
@@ -146,17 +149,19 @@ source("scripts/number_cond.R")
 # create a histogram of the number of medical conditions
 cond_his <- ggplot(df, aes(x=num_cond)) +
   geom_bar() +
-  labs(x="Number of Pre-Existing Conditions", y=str_wrap("Number of Patients", 15),
+  labs(x="Number of Pre-Existing Conditions", y=str_wrap("Number of Patients (In Thousands)", 15),
        title=str_wrap("Distribution of Patients by Number of Pre-Existing Conditions", 60)) +
+  scale_y_continuous(labels = unit_format(unit="", scale = 1/1000)) +
   theme_bw(12)
 
 # create a cleveland dotplot to see how the number of conditions affects the length of stay
 cond_dot <- ggplot(count, aes(x=fct_rev(LengthOfStay), y=Freq, color=num_cond)) +
   geom_point(size=3) +
     scale_x_discrete(limit = c("11+",10:1)) +
+  scale_y_continuous(labels = unit_format(unit="", scale = 1/1000)) +
   coord_flip() +
   labs(x="Length of Stay (In Days)", 
-       y="Number of Patients", 
+       y="Number of Patients (In Thousands)", 
        color=str_wrap("Number of Conditions", 15),
        title=str_wrap("Hospital Stay Lengths by Number of Pre-Existing Conditions", 55)) +
   scale_color_viridis_d(direction=-1) +
@@ -184,17 +189,19 @@ source("scripts/rcount.R")
 # create a histogram of the number of previous admissions
 rcount_his <- ggplot(df, aes(x=rcount)) +
   geom_bar() +
-  labs(x="Number of Previous Admissions", y=str_wrap("Number of Patients", 15),
+  labs(x="Number of Previous Admissions", y=str_wrap("Number of Patients (In Thousands)", 15),
        title=str_wrap("Distribution of Patients by Number of Previous Admissions", 60)) +
+  scale_y_continuous(labels = unit_format(unit="", scale = 1/1000)) +
   theme_bw(12)
 
 # create a cleveland dotplot to see how the number of previous admissions affects length of stay
 rcount_dot <- ggplot(count2, aes(x=fct_rev(LengthOfStay), y=Freq, color=rcount)) +
   geom_point(size=3) +
     scale_x_discrete(limit = c("11+",10:1)) +
+  scale_y_continuous(labels = unit_format(unit="", scale = 1/1000)) +
   coord_flip() +
   labs(x="Length of Stay (In Days)", 
-       y="Number of Patients", 
+       y="Number of Patients (In Thousands)", 
        color=str_wrap("Number of Previous Admissions", 15),
        title=str_wrap("Hospital Stay Lengths by Number of Previous Admissions", 50)) +
   scale_color_viridis_d(direction=-1) +
