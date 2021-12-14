@@ -4,11 +4,11 @@
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>Chapter 2 Data sources | LengthOfStay</title>
-  <meta name="description" content="Chapter 2 Data sources | LengthOfStay" />
+  <title>Chapter 7 Interactive component | LengthOfStay</title>
+  <meta name="description" content="Chapter 7 Interactive component | LengthOfStay" />
   <meta name="generator" content="bookdown 0.24 and GitBook 2.6.7" />
 
-  <meta property="og:title" content="Chapter 2 Data sources | LengthOfStay" />
+  <meta property="og:title" content="Chapter 7 Interactive component | LengthOfStay" />
   <meta property="og:type" content="book" />
   
   
@@ -16,7 +16,7 @@
   
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="Chapter 2 Data sources | LengthOfStay" />
+  <meta name="twitter:title" content="Chapter 7 Interactive component | LengthOfStay" />
   
   
   
@@ -31,8 +31,8 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black" />
   
   
-<link rel="prev" href="index.html"/>
-<link rel="next" href="data-transformation.html"/>
+<link rel="prev" href="interactive-component.html"/>
+<link rel="next" href="conclusion.html"/>
 <script src="libs/header-attrs-2.11/header-attrs.js"></script>
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
@@ -106,18 +106,143 @@
           <div class="page-inner">
 
             <section class="normal" id="section-">
-<div id="data-sources" class="section level1" number="2">
-<h1><span class="header-section-number">Chapter 2</span> Data sources</h1>
-<p>The dataset we are exploring comes from a database called MIMIC-III. MIMIC-III is a freely available database which contains the data of tens of thousands of patients admitted to the critical care unit of the Beth Israel Deaconess Medical Center in Boston, Massachussetts, between the years 2001 and 2012. The MIMIC-III database is a very popular data source for researchers interested in healthcare data, since all of its data is freely available, the data is collected from a wide range of patients from largely differing demographics, and also includes very detailed data on patient care and results.</p>
-<p>The data in this database is collected by healthcare workers of Beth Israel Deaconess Medical Center during their routine work, through two different critical care information systems. One such critical care system is the Philips CareVue Clinical Information System, and the other such critical care system is the iMDsoft MetaVision ICU. These critical care information systems record clinical data such as physiological data (i.e. heart rate, blood pressure, etc.), as well as documented progress notes throughout patient care provided by hospital caregivers. However, the database also contains records that are not exclusively collected by these information systems. Additional information is also included, such as patient demographics, laboratory test results, and admission and discharge summaries.</p>
-<p>As mentioned previously, the particular dataset from the MIMIC-III database that we are studying regards the hospital stays of Beth Israel Deaconess Medical Center patients. In total, there are 100,000 patient stays recorded in this dataset.</p>
-<p>As expected, the data contains a combination of both categorical and numerical data. The categorical data comprises some basic information about the patient admitted, including their gender (gender), the number of readmissions in the last 180 days (rcount), and the ID of the facility into which they were admitted (facid). The other categorical data in this dataset pertains to the medical histories of these patients – whether they have certain medical issues such as: renal disease, asthma, iron deficiency, pneumonia, substance dependence, depression, psychological disorder, fibrosis, malnutrition, and blood disorder.</p>
-<p>The data also contains numerical data, which are the results of laboratory tests or basic physiological measurements. Laboratory test results in this dataset include hematocrit levels, neutrophil levels, sodium levels, glucose levels, blood urea nitrogen levels, and creatinine levels. Physiological measurements in this dataset include BMI, average pulse, and average respiration. Of course, for each patient stay, the length of the stay has also been recorded.</p>
-<p>Data on the dates of admissions and dates of discharges were also included, but this was not useful to us, since in the de-identification process required of the MIMIC-III database by the Health Insurance Portability Act (HIPAA), the dates were randomized or transformed to further into the future in order to protect the anonymity of the patients. This prevented us from exploring how different months or seasons affected patient stays. However, the lengths of the patients’ stays were preserved, and this is the variable that we were able to focus on.</p>
-<p>Links:</p>
-<p>Database: <a href="https://physionet.org/content/mimiciii/1.4/" class="uri">https://physionet.org/content/mimiciii/1.4/</a></p>
-<p>Description of Data Variables: <a href="https://microsoft.github.io/r-server-hospital-length-of-stay/input_data.html" class="uri">https://microsoft.github.io/r-server-hospital-length-of-stay/input_data.html</a></p>
-<p>Data Source: <a href="https://github.com/microsoft/r-server-hospital-length-of-stay/blob/master/Data/LengthOfStay.csv" class="uri">https://github.com/microsoft/r-server-hospital-length-of-stay/blob/master/Data/LengthOfStay.csv</a></p>
+<div id="interactive-component-1" class="section level1" number="7">
+<h1><span class="header-section-number">Chapter 7</span> Interactive component</h1>
+<p><strong>Proportion of patients in terms of Length of Stay and numer of previous visits in this hospital</strong></p>
+<html lang="en">
+<meta charset="utf-8">
+<!-- Load d3.js -->
+<script src="https://d3js.org/d3.v7.js"></script>
+<!-- Initialize a select button -->
+<p><select id="selectButton"></select></p>
+<!-- Create a div where the graph will take place -->
+<div id="my_dataviz">
+
+</div>
+<script>
+
+// set the dimensions and margins of the graph
+const margin = {top: 10, right: 100, bottom: 50, left: 30},
+    width = 800 - margin.left - margin.right,
+    height = 500 - margin.top - margin.bottom;
+    
+
+// append the svg object to the body of the page
+const svg = d3.select("#my_dataviz")
+  .append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform",`translate(${margin.left}, ${margin.top})`);
+
+//Read the data
+d3.csv("https://raw.githubusercontent.com/Raphaeladda/LengthOfStay/main/initial/data_interactive.csv").then(function(data){
+
+    // List of groups (here I have one group per column)
+    const allGroup = ["zero","one","two","three","four","five_or_more"]
+
+    // add the options to the button
+    d3.select("#selectButton")
+      .selectAll('myOptions')
+        .data(allGroup)
+      .enter()
+        .append('option')
+      .text(function (d) { return d; }) // text showed in the menu
+      .attr("value", function (d) { return d; }) // corresponding value returned by the button
+
+    // Add X axis --> it is a date format
+    const x = d3.scaleLinear()
+      .domain([1,9])
+      .range([ 0, width ]);
+    svg.append("g")
+      .attr("transform", "translate(0," + height + ")")
+      .call(d3.axisBottom(x));
+
+    // Add Y axis
+    const y = d3.scaleLinear()
+      .domain( [0,100])
+      .range([ height, 0 ])
+
+    svg.append("g")
+      .call(d3.axisLeft(y));
+
+    // Initialize line with group a
+    const line = svg
+      .append('g')
+      .append("path")
+        .datum(data)
+        .attr("d", d3.line()
+          .x(function(d) { return x(+d.LoS) })
+          .y(function(d) { return y(+d.zero) })
+        )
+        .attr("stroke", "black")
+        .style("stroke-width", 4)
+        .style("fill", "none")
+
+    // Initialize dots with group a
+    const dot = svg
+      .selectAll('circle')
+      .data(data)
+      .enter()
+      .append('circle')
+        .attr("cx", function(d) { return x(+d.LoS) })
+        .attr("cy", function(d) { return y(+d.zero) })
+        .attr("r", 7)
+        .style("fill", "#69b3a2")
+      
+    // Add the text label for the x axis
+    svg.append("text")
+      .attr("transform", "translate(" + (width + margin.left) + " ," + (height + 0.7*margin.bottom) + ")")
+      .style("text-anchor", "middle")
+      .text("Length Of Stay");
+
+    // Add the text label for the y axis
+    svg.append("text")
+      .attr("transform", "translate(" + (3*margin.left) + " ," + (margin.top) + ")")
+      .style("text-anchor", "middle")
+      .text("Percentage of patients");
+
+
+    // A function that update the chart
+    function update(selectedGroup) {
+
+      // Create new data with the selection?
+      const dataFilter = data.map(function(d){return {LoS: d.LoS, value:d[selectedGroup]} })
+
+      // Give these new data to update line
+      line
+          .datum(dataFilter)
+          .transition()
+          .duration(1000)
+          .attr("d", d3.line()
+            .x(function(d) { return x(+d.LoS) })
+            .y(function(d) { return y(+d.value) })
+          )
+      dot
+        .data(dataFilter)
+        .transition()
+        .duration(1000)
+          .attr("cx", function(d) { return x(+d.LoS) })
+          .attr("cy", function(d) { return y(+d.value) })
+    }
+
+    // When the button is changed, run the updateChart function
+    d3.select("#selectButton").on("change", function(d) {
+        // recover the option that has been chosen
+        const selectedOption = d3.select(this).property("value")
+        // run the updateChart function with this selected option
+        update(selectedOption)
+    })
+
+
+})
+
+
+</script>
+</html>
+<p>This interactive connected scatterplot shows interesting patterns between the length of stay of a patient and the number of previous admissions. Indeed, we notice that the length of stay of a patient in the hospital considerably increases when his number of previous admission is high.<br />
+The surface under the curve become higher at the right of the graph when we select high values of previous admission: this graph perfectly illustrates the effect of the number of previous admissions on the length of stay.<br />
+Thus we can conclude that the number of previous admissions is a useful indicator to estimate the length of stay of a patient in the hospital.</p>
 
 </div>
             </section>
@@ -125,8 +250,8 @@
           </div>
         </div>
       </div>
-<a href="index.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
-<a href="data-transformation.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+<a href="interactive-component.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="conclusion.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>
@@ -157,7 +282,7 @@ gitbook.start({
 "size": 2
 },
 "edit": {
-"link": "https://github.com/Raphaeladda/LengthOfStay/edit/main/02-data.Rmd",
+"link": "https://github.com/Raphaeladda/LengthOfStay/edit/main/06-interactive.Rmd",
 "text": "Edit"
 },
 "history": {
@@ -165,7 +290,7 @@ gitbook.start({
 "text": null
 },
 "view": {
-"link": "https://github.com/Raphaeladda/LengthOfStay/blob/main/02-data.Rmd",
+"link": "https://github.com/Raphaeladda/LengthOfStay/blob/main/06-interactive.Rmd",
 "text": null
 },
 "download": null,
