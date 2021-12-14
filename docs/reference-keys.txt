@@ -8,5 +8,4 @@ correlations-between-physiological-data-and-the-length-of-stay
 analysis-of-categorical-data-pre-existing-conditions-number-of-previous-admissions
 most-common-patterns-of-pre-existing-medical-conditions
 interactive-component
-interactive-component-1
 conclusion
