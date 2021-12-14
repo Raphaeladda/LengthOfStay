@@ -3,11 +3,15 @@
 **Proportion of patients in terms of Length of Stay and number of previous visits in this hospital**  
 Chose the number of previous admissions thanks to the button below.
 
+# Interactive component
+
+**Proportion of patients in terms of Length of Stay and numer of previous visits in this hospital**
+
 <html lang="en">
 <meta charset="utf-8">
 
 <!-- Load d3.js -->
-<script src="https://d3js.org/d3.v4.js"></script>
+<script src="https://d3js.org/d3.v7.js"></script>
 
 <!-- Initialize a select button -->
 <select id="selectButton"></select>
@@ -15,30 +19,27 @@ Chose the number of previous admissions thanks to the button below.
 <!-- Create a div where the graph will take place -->
 <div id="my_dataviz"></div>
 
-<!-- Color Scale -->
-<script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
-
 <script>
 
 // set the dimensions and margins of the graph
-var margin = {top: 10, right: 100, bottom: 50, left: 30},
+const margin = {top: 10, right: 100, bottom: 50, left: 30},
     width = 800 - margin.left - margin.right,
     height = 500 - margin.top - margin.bottom;
+    
 
 // append the svg object to the body of the page
-var svg = d3.select("#my_dataviz")
+const svg = d3.select("#my_dataviz")
   .append("svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
   .append("g")
-    .attr("transform",
-          "translate(" + margin.left + "," + margin.top + ")");
+    .attr("transform",`translate(${margin.left}, ${margin.top})`);
 
 //Read the data
-d3.csv("https://raw.githubusercontent.com/Raphaeladda/LengthOfStay/main/initial/data_interactive.csv", function(data) {
+d3.csv("https://raw.githubusercontent.com/Raphaeladda/LengthOfStay/main/initial/data_interactive.csv").then(function(data){
 
     // List of groups (here I have one group per column)
-    var allGroup = ["zero","one","two","three","four","five_or_more"]
+    const allGroup = ["zero","one","two","three","four","five_or_more"]
 
     // add the options to the button
     d3.select("#selectButton")
@@ -50,7 +51,7 @@ d3.csv("https://raw.githubusercontent.com/Raphaeladda/LengthOfStay/main/initial/
       .attr("value", function (d) { return d; }) // corresponding value returned by the button
 
     // Add X axis --> it is a date format
-    var x = d3.scaleLinear()
+    const x = d3.scaleLinear()
       .domain([1,9])
       .range([ 0, width ]);
     svg.append("g")
@@ -58,7 +59,7 @@ d3.csv("https://raw.githubusercontent.com/Raphaeladda/LengthOfStay/main/initial/
       .call(d3.axisBottom(x));
 
     // Add Y axis
-    var y = d3.scaleLinear()
+    const y = d3.scaleLinear()
       .domain( [0,100])
       .range([ height, 0 ])
 
@@ -66,7 +67,7 @@ d3.csv("https://raw.githubusercontent.com/Raphaeladda/LengthOfStay/main/initial/
       .call(d3.axisLeft(y));
 
     // Initialize line with group a
-    var line = svg
+    const line = svg
       .append('g')
       .append("path")
         .datum(data)
@@ -79,7 +80,7 @@ d3.csv("https://raw.githubusercontent.com/Raphaeladda/LengthOfStay/main/initial/
         .style("fill", "none")
 
     // Initialize dots with group a
-    var dot = svg
+    const dot = svg
       .selectAll('circle')
       .data(data)
       .enter()
@@ -99,14 +100,14 @@ d3.csv("https://raw.githubusercontent.com/Raphaeladda/LengthOfStay/main/initial/
     svg.append("text")
       .attr("transform", "translate(" + (3*margin.left) + " ," + (margin.top) + ")")
       .style("text-anchor", "middle")
-      .text("percentage of patients");
+      .text("Percentage of patients");
 
 
     // A function that update the chart
     function update(selectedGroup) {
 
       // Create new data with the selection?
-      var dataFilter = data.map(function(d){return {LoS: d.LoS, value:d[selectedGroup]} })
+      const dataFilter = data.map(function(d){return {LoS: d.LoS, value:d[selectedGroup]} })
 
       // Give these new data to update line
       line
@@ -128,13 +129,18 @@ d3.csv("https://raw.githubusercontent.com/Raphaeladda/LengthOfStay/main/initial/
     // When the button is changed, run the updateChart function
     d3.select("#selectButton").on("change", function(d) {
         // recover the option that has been chosen
-        var selectedOption = d3.select(this).property("value")
+        const selectedOption = d3.select(this).property("value")
         // run the updateChart function with this selected option
         update(selectedOption)
     })
+
 
 })
 
 
 </script>
 </html>
+
+This interactive connected scatterplot shows interesting patterns between the length of stay of a patient and the number of previous admissions. Indeed, we notice that the length of stay of a patient in the hospital considerably increases when his number of previous admission is high.  
+The surface under the curve become higher at the right of the graph when we select high values of previous admission: this graph perfectly illustrates the effect of the number of previous admissions on the length of stay.  
+Thus we can conclude that the number of previous admissions is a useful indicator to estimate the length of stay of a patient in the hospital.
